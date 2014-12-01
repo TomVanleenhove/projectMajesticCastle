@@ -1,19 +1,17 @@
 /* globals Modernizr:true */
+/* globals circ:true */
+/* globals initView:true */
 //concat met templates en wrap met (function(){})() gebeurt automatisch via gulp
 var socket,socketid,clients;
-function shakeEventDidOccur () {
 
+function shakeEventDidOccur () {
 	console.log("SHAKE");
 	$('span').text("SHAKEEEHH");
 	socket.emit("shake");
-
-    //put your own code here etc.
-    // if (confirm("Undo?")) {
-    // }
 }
 function init() {
 	//socket = io("http://localhost");
-
+	initView();
 	if ( Modernizr.touch ) {
 	   window.addEventListener('shake', shakeEventDidOccur, false);
 	} else {
@@ -42,6 +40,7 @@ function init() {
 	socket.on("shake",function(data){
 	  console.log("shake");
 	  $('span').text("SHAKEEEHH");
+	  circ.translation.x -= 10;
 	  /*var lis = document.getElementsByTagName("li");
 	  lis.forEach(function(li){
 	  	if(li.getAttribute("data-socketid") === data){
