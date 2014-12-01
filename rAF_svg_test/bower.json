@@ -1,0 +1,16 @@
+{
+  "name": "code",
+  "version": "0.0.1",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "paper": "~0.9.21",
+    "bean": "~1.0.14"
+  }
+}
