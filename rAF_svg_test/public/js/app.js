@@ -105,7 +105,7 @@
 
   })();
 
-},{"./svg/SVGHelper":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/rAF_svg_test/_js/svg/SVGHelper.js","./util/requestAnimationFrame":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/rAF_svg_test/_js/util/requestAnimationFrame.js"}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/rAF_svg_test/_js/svg/SVGHelper.js":[function(require,module,exports){
+},{"./svg/SVGHelper":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/rAF_svg_test/_js/svg/SVGHelper.js","./util/requestAnimationFrame":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/rAF_svg_test/_js/util/requestAnimationFrame.js"}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/rAF_svg_test/_js/svg/SVGHelper.js":[function(require,module,exports){
 var namespace = "http://www.w3.org/2000/svg";
 
 function SVGHelper(){
@@ -118,7 +118,7 @@ SVGHelper.createElement = function(el){
 
 module.exports = SVGHelper;
 
-},{}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/rAF_svg_test/_js/util/requestAnimationFrame.js":[function(require,module,exports){
+},{}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/rAF_svg_test/_js/util/requestAnimationFrame.js":[function(require,module,exports){
 module.exports = (function(){
 	return  window.requestAnimationFrame       || // vedor prefixes. requestanimationframe is beste manier om te animeren in javascript
 	        window.webkitRequestAnimationFrame ||
