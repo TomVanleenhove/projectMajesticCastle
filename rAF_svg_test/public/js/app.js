@@ -7,15 +7,15 @@
 
 	var position = {x:100, y:500 - 36};
 	var currentPos = { x: 100, y: 500 - 36 };
-	var radius = 20;
+	var radius = 30;
 	var fill = "black";
 
-	var circle, bg, speed, keyPressed;
+	var circle, bg, speed, jumping, control;
 
 	var svg;
 
 	var velocity = 0;
-	var gravity = .4;
+	var gravity = 0.4;
 
 	function init(){
 
@@ -42,7 +42,8 @@
 
 			speed = 10 + Math.round(Math.random() * (50 - 10));
 
-			document.onkeydown = checkKey;
+			document.onkeydown = checkKeyDown;
+			document.onkeyup = checkKeyUp;
 
 			_enterFrame.call(this);
 
@@ -51,7 +52,14 @@
 
 
 	function _enterFrame(){
-
+		switch (control) {
+    		case "left":
+    		currentPos.x -= 10;
+    		break;
+    		case "right":
+    		currentPos.x += 10;
+    		break;
+    	}
 		console.log('y = ' + position.y);
 
 		position.x += (currentPos.x - position.x) / speed;
@@ -60,9 +68,9 @@
 		circle.setAttribute('cx', position.x);
 		circle.setAttribute('cy', position.y);
 
-		if (keyPressed) {
+		if (jumping) {
         velocity = -20;
-        keyPressed = false;
+        jumping = false;
     }
 
     _update.call(this);
@@ -84,19 +92,26 @@
       }
     }
 
-    function checkKey(e) {
+    function checkKeyDown(e) {
     	switch (e.keyCode) {
     		case 37:
     		control = "left";
-    		currentPos.x -= 50;
     		break;
     		case 39:
     		control = "right";
-    		currentPos.x += 50;
     		break;
     		case 32:
-    		control = "space";
-    		keyPressed = true;
+    		jumping = true;
+    		break;
+    	}
+    }
+    function checkKeyUp(e) {
+    	switch (e.keyCode) {
+    		case 37:
+    		control = null;
+    		break;
+    		case 39:
+    		control = null;
     		break;
     	}
     }
@@ -105,7 +120,7 @@
 
   })();
 
-},{"./svg/SVGHelper":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/rAF_svg_test/_js/svg/SVGHelper.js","./util/requestAnimationFrame":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/rAF_svg_test/_js/util/requestAnimationFrame.js"}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/rAF_svg_test/_js/svg/SVGHelper.js":[function(require,module,exports){
+},{"./svg/SVGHelper":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/rAF_svg_test/_js/svg/SVGHelper.js","./util/requestAnimationFrame":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/rAF_svg_test/_js/util/requestAnimationFrame.js"}],"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/rAF_svg_test/_js/svg/SVGHelper.js":[function(require,module,exports){
 var namespace = "http://www.w3.org/2000/svg";
 
 function SVGHelper(){
@@ -118,7 +133,7 @@ SVGHelper.createElement = function(el){
 
 module.exports = SVGHelper;
 
-},{}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/rAF_svg_test/_js/util/requestAnimationFrame.js":[function(require,module,exports){
+},{}],"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/rAF_svg_test/_js/util/requestAnimationFrame.js":[function(require,module,exports){
 module.exports = (function(){
 	return  window.requestAnimationFrame       || // vedor prefixes. requestanimationframe is beste manier om te animeren in javascript
 	        window.webkitRequestAnimationFrame ||
