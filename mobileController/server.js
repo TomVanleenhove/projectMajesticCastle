@@ -37,6 +37,9 @@ io.on('connection', function(socket){
 	socket.on('button_pressed', function(button){
 		socket.broadcast.emit('button_pressed', button);
 	});
+	socket.on('shake', function(){
+		socket.broadcast.emit('shake');
+	});
 });
 
 server.listen(port, function() {

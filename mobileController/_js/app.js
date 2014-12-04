@@ -20,7 +20,7 @@
 
 	function init(){
 
-		socket = io("192.168.123.164:3000");
+		socket = io("172.30.22.17:3000");
 		socket.on("socketid",function(data){
 			console.log("data = " + data);
 			socketid = data;
@@ -50,7 +50,6 @@
 	}
 
 	function _desktop () {
-
 		svg = document.querySelector('svg');
 		svg.width = window.innerWidth;
 		svg.height = window.innerHeight;
@@ -86,20 +85,26 @@
 				case "left" :
 				control = "left";
 				break;
-
-				case "jump" :
-				jumping = true;
-				break;
-
 				case "right" :
 				control = "right";
 				break;
+				case "":
+				control = null;
+				break;
 			}
+			console.log(button);
 		});
-
+		socket.on('shake', function(){
+			jumping = true;
+		});
 	}
-
+	function shakeEventDidOccur () {
+		$('h1').text('JUMP');
+		socket.emit('shake');
+		
+	}
 	function _mobile () {
+		window.addEventListener('shake', shakeEventDidOccur, false);
 
 		svg = document.querySelector('svg');
 		svg.width = window.innerWidth;
@@ -116,25 +121,26 @@
 
 		svg.appendChild(bg);
 
-		var buttonPos = 50;
+		var buttonPos = '33%';
 
-		for (var i = 0; i < 3; i++) {
+		for (var i = 0; i < 2; i++) {
 
 			circle = SVGHelper.createElement('circle');
 				circle.setAttribute('cx', buttonPos); // cx = middelpunt v d cirkel in svg
-				circle.setAttribute('cy', 200);
+				circle.setAttribute('cy', '50%');
 				circle.setAttribute('r', 35);
 				circle.setAttribute('fill', 'white');
+				circle.setAttribute('dislpay', 'block');
+				//circle.setAttribute('-webkit-user-select', 'none');
 
 				svg.appendChild(circle);
 
 				buttons.push(circle);
 
-				buttonPos += 110;
+				buttonPos = '66%';
 			}
 
 			buttons.forEach(function(button){
-
 				button.addEventListener('touchstart', function(e){
 
 					switch (button) {
@@ -142,21 +148,16 @@
 							// $('h1').text('LINKS');
 							socket.emit("button_pressed", "left");
 							break;
-
 							case buttons[1] :
-							// $('h1').text('SPRING');
-							socket.emit("button_pressed", "jump");
-							break;
-
-							case buttons[2] :
 							// $('h1').text('RECHTS');
 							socket.emit("button_pressed", "right");
 							break;
 						}
 					});
 
-				button.addEventListener('touchstart', function(e){
-					switch (button) {
+				button.addEventListener('touchend', function(e){
+					socket.emit("button_pressed", "");
+					/*switch (button) {
 						case buttons[0] :
 							// $('h1').text('LINKS');
 							socket.emit("button_pressed", "");
@@ -166,14 +167,12 @@
 							// $('h1').text('RECHTS');
 							socket.emit("button_pressed", "");
 							break;
-						}
+						}*/
 				});
 
 			});
 
 		}
-
-
 		function _enterFrame(){
 			switch (control) {
 				case "left":
