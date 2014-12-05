@@ -1,35 +1,43 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"./_js/app.js":[function(require,module,exports){
+/* globals io:true */
+/* globals Modernizr:true */
 (function(){
 
 	window.requestAnimationFrame = require('./util/requestAnimationFrame');
 
 	var SVGHelper = require('./svg/SVGHelper');
-
-	var position = {x:100, y:500 - 36};
-	var currentPos = { x: 100, y: 500 - 36 };
 	var radius = 30;
 	var fill = "black";
 
-	var circle, bg, speed, jumping, control, buttons;
+	var bg, speed, buttons;
+	var circles = [];
 
-	var socket, socketid, clients, nickname;
+	var socket, socketid, clients;
 
 	var svg;
 
-	var velocity = 0;
 	var gravity = 0.4;
+	var position = {x:30,y:500};
+	//var myShakeEvent = new Shake({ threshold: 10});
 
 	function init(){
 
-		socket = io("172.30.22.17:3000");
+		socket = io("172.30.22.9:3000");
 		socket.on("socketid",function(data){
 			console.log("data = " + data);
 			socketid = data;
+			if(Modernizr.touch) {
+				$('h1').text('Mobile = true / id = '+ socketid);
+				_mobile.call(this);
+			} else {
+				$('h1').text('Mobile = false / id = '+ socketid);
+				_desktop.call(this);
+			}
 		});
 
 		socket.on("connect_disconnect",function(data){
 		clients = data;
-		console.log(clients);
+		//console.log(clients);
 		$(".clients").empty();
 		for(var i = 0; i < clients.length; i++){
 			if(clients[i].socketid === socketid){
@@ -38,18 +46,24 @@
 			}
 		}
 	});
-
-		if(Modernizr.touch) {
-			$('h1').text('Mobile = true');
-			_mobile.call(this);
-		} else {
-			$('h1').text('Mobile = false');
-			_desktop.call(this);
-		}
-
+	}
+	function makeBall(socketBallId){
+		var circle = SVGHelper.createElement('circle');
+		circle.setAttribute('cx', position.x); // cx = middelpunt v d cirkel in svg
+		circle.setAttribute('cy', position.y);
+		circle.setAttribute('currentx', position.x);
+		circle.setAttribute('currenty', position.y);
+		circle.setAttribute('r', radius);
+		circle.setAttribute('fill', 'white');
+		circle.setAttribute('socketBallId', socketBallId);
+		circle.setAttribute('control',"");
+		circle.setAttribute('jumping', false);
+		circle.setAttribute('velocity', 0);
+		svg.appendChild(circle);
+		circles.push(circle);
+		console.log(circles);
 
 	}
-
 	function _desktop () {
 		svg = document.querySelector('svg');
 		svg.width = window.innerWidth;
@@ -65,46 +79,65 @@
 
 		svg.appendChild(bg);
 
-		circle = SVGHelper.createElement('circle');
-		circle.setAttribute('cx', position.x); // cx = middelpunt v d cirkel in svg
-		circle.setAttribute('cy', position.y);
-		circle.setAttribute('r', radius);
-		circle.setAttribute('fill', 'white');
-
-		svg.appendChild(circle);
-
+		socket.on("makeNewBall",function(data){
+			makeBall(data);
+		});
 
 		speed = 10 + Math.round(Math.random() * (50 - 10));
-
-		document.onkeydown = checkKeyDown;
-		document.onkeyup = checkKeyUp;
-
 		_enterFrame.call(this);
 
-		socket.on('button_pressed', function(button){
-			switch (button) {
-				case "left" :
-				control = "left";
-				break;
-				case "right" :
-				control = "right";
-				break;
-				case "":
-				control = null;
-				break;
+		socket.on('button_pressed', function(buttonElement){
+			if (circles !== []) {
+				for (var i = 0; i < circles.length; i++) {
+					var currentCircle = circles[i];
+				    if (currentCircle.getAttribute("socketBallId") === buttonElement.socketid){
+				    	switch (buttonElement.pressed) {
+							case "left" :
+							currentCircle.setAttribute("control","left");
+							break;
+							case "right" :
+							currentCircle.setAttribute("control","right");
+							break;
+							case "":
+							currentCircle.setAttribute("control","");
+							break;
+						}
+				    }
+				}
 			}
-			console.log(button);
 		});
-		socket.on('shake', function(){
-			jumping = true;
+		socket.on('shake', function(jumpingSocketid){
+			console.log("shake arrived");
+			if (circles !== []) {
+				for (var i = 0; i < circles.length; i++) {
+					var currentCircle = circles[i];
+				    if (currentCircle.getAttribute("socketBallId") === jumpingSocketid){
+				    	currentCircle.setAttribute("jumping",true);
+				    }
+				}
+			}
+		});
+		socket.on('removeBall', function(socketBallId){
+			console.log("trying to removed: " + socketBallId);
+			if (circles !== []) {
+				for (var i = 0; i < circles.length; i++) {
+					var currentCircle = circles[i];
+				    if (currentCircle.getAttribute("socketBallId") === socketBallId){
+				    	console.log("removed: " + socketBallId);
+				    	currentCircle.remove();
+				    	circles.splice(i,1);
+				    }
+				}
+			}
 		});
 	}
 	function shakeEventDidOccur () {
-		$('h1').text('JUMP');
-		socket.emit('shake');
+		socket.emit('shake', socketid);
 		
 	}
 	function _mobile () {
+		console.log(socketid);
+
 		window.addEventListener('shake', shakeEventDidOccur, false);
 
 		svg = document.querySelector('svg');
@@ -126,7 +159,7 @@
 
 		for (var i = 0; i < 2; i++) {
 
-			circle = SVGHelper.createElement('circle');
+				var circle = SVGHelper.createElement('circle');
 				circle.setAttribute('cx', buttonPos); // cx = middelpunt v d cirkel in svg
 				circle.setAttribute('cy', '50%');
 				circle.setAttribute('r', 35);
@@ -140,101 +173,78 @@
 
 				buttonPos = '66%';
 			}
-
 			buttons.forEach(function(button){
+				var buttonElement = {pressed:"",socketid:socketid};
 				button.addEventListener('touchstart', function(e){
-
 					switch (button) {
 						case buttons[0] :
-							// $('h1').text('LINKS');
-							socket.emit("button_pressed", "left");
+							buttonElement.pressed = "left";
+							socket.emit("button_pressed", buttonElement);
 							break;
 							case buttons[1] :
-							// $('h1').text('RECHTS');
-							socket.emit("button_pressed", "right");
+							buttonElement.pressed = "right";
+							socket.emit("button_pressed", buttonElement);
 							break;
 						}
 					});
 
 				button.addEventListener('touchend', function(e){
-					socket.emit("button_pressed", "");
-					/*switch (button) {
-						case buttons[0] :
-							// $('h1').text('LINKS');
-							socket.emit("button_pressed", "");
-							break;
-
-							case buttons[2] :
-							// $('h1').text('RECHTS');
-							socket.emit("button_pressed", "");
-							break;
-						}*/
+					buttonElement.pressed = "";
+					socket.emit("button_pressed", buttonElement);
 				});
 
 			});
-
+			//myShakeEvent.start();
+			window.addEventListener('shake', shakeEventDidOccur, false);
 		}
 		function _enterFrame(){
-			switch (control) {
-				case "left":
-				currentPos.x -= 10;
-				break;
-				case "right":
-				currentPos.x += 10;
-				break;
+			if (circles !== []) {
+				for (var i = 0; i < circles.length; i++) {
+					var currentCircle = circles[i];	
+					switch(currentCircle.getAttribute("control")){
+						case "left":
+						console.log("physical -> left");
+						currentCircle.setAttribute("currentx",parseFloat(currentCircle.getAttribute("currentx")) - 10);
+						break;
+						case "right":
+						console.log("physical -> right");
+						currentCircle.setAttribute("currentx",parseFloat(currentCircle.getAttribute("currentx")) + 10);
+						break;
+					}
+					currentCircle.setAttribute("cx", ((parseFloat(currentCircle.getAttribute("currentx")) - parseFloat(currentCircle.getAttribute("cx"))) / speed)+parseFloat(currentCircle.getAttribute("cx")));
+					currentCircle.setAttribute("cy", ((parseFloat(currentCircle.getAttribute("currenty")) - parseFloat(currentCircle.getAttribute("cy"))) / speed)+parseFloat(currentCircle.getAttribute("cy")));
+
+					if (currentCircle.getAttribute("jumping").toString() === "true"){
+						console.log("physical -> jumping");
+						currentCircle.setAttribute("velocity", (parseFloat(currentCircle.getAttribute("velocity")) - 20));
+						currentCircle.setAttribute("jumping", false);
+						console.log("physical -> jumping stopped");
+					}
+
+					_update.call(this);
+				}
+			
 			}
-
-			position.x += (currentPos.x - position.x) / speed;
-			position.y += (currentPos.y - position.y) / speed;
-
-			circle.setAttribute('cx', position.x);
-			circle.setAttribute('cy', position.y);
-
-			if (jumping) {
-				velocity = -20;
-				jumping = false;
-			}
-
-			_update.call(this);
-
+			
 			requestAnimationFrame(_enterFrame.bind(this));
-
 		}
 
 		function _update(){
-			if (position.y + velocity + 36 > 500) {
-        // If so, move us back to ground level and set velocity to zero
-        velocity = 0;
-        position.y = 500 - 36;
-      } else {
-        // Otherwise, move what is indicated by velocity
-        velocity += gravity;
-        position.y += velocity;
-      }
-    }
-
-    function checkKeyDown(e) {
-    	switch (e.keyCode) {
-    		case 37:
-    		control = "left";
-    		break;
-    		case 39:
-    		control = "right";
-    		break;
-    		case 32:
-    		jumping = true;
-    		break;
-    	}
-    }
-    function checkKeyUp(e) {
-    	switch (e.keyCode) {
-    		case 37:
-    		control = null;
-    		break;
-    		case 39:
-    		control = null;
-    		break;
-    	}
+			if (circles !== []) {
+				for (var i = 0; i < circles.length; i++) {
+					var currentCircle = circles[i];	
+					if (parseFloat(currentCircle.getAttribute("cy")) + parseFloat(currentCircle.getAttribute("velocity")) + 36 > 500) {
+		        	// If so, move us back to ground level and set velocity to zero
+				    	currentCircle.setAttribute("velocity", 0);
+				    	currentCircle.setAttribute("cy", 500 - 36);
+				    } else {
+				      // Otherwise, move what is indicated by velocity
+				    	currentCircle.setAttribute("velocity", (parseFloat(currentCircle.getAttribute("velocity")) + gravity));
+				    	currentCircle.setAttribute("cy", (parseFloat(currentCircle.getAttribute("cy")) + parseFloat(currentCircle.getAttribute("velocity"))));
+				    }
+				}
+			}
+			
     }
 
     init();
