@@ -22,7 +22,7 @@
 
 	function init(){
 
-		socket = io("172.30.22.9:3000");
+		socket = io("192.168.0.142:3000");
 		socket.on("socketid",function(data){
 			console.log("data = " + data);
 			socketid = data;
