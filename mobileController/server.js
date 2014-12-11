@@ -23,6 +23,7 @@ io.on('connection', function(socket){
 	var client  = new Client(maxid + 1,socket.id);
 	clients.push(client);
 	console.log(client);
+	//io.to(socket.id).emit("socketid",socket.id);
 	socket.emit("socketid",socket.id);
 	socket.broadcast.emit("makeNewBall",socket.id);
 	io.sockets.emit("connect_disconnect",clients);
