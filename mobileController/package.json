@@ -10,7 +10,7 @@
   },
   "author": "",
   "license": "ISC",
-    "browserify": {
+  "browserify": {
     "transform": [
       "hbsfy"
     ]
@@ -24,7 +24,8 @@
     "express": "^4.10.4",
     "express-session": "^1.9.2",
     "forever": "^0.13.0",
-    "method-override": "^2.3.0"
+    "method-override": "^2.3.0",
+    "underscore": "~1.7.0"
   },
   "repository": {
     "type": "git"
