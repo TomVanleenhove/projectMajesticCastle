@@ -1,5 +1,6 @@
 /* globals io:true */
 /* globals Modernizr:true */
+/* globals Snap:true */
 
 (function(){
 
@@ -9,8 +10,8 @@
 	var Circle = require('./util/Circle');
 	var Mobile = require('./mobile/Mobile');
 	var characters = require('./data/characters').characters;
-	var fill = "black";
 	var initialized = false;
+	var ground;
 
 	var bg;
 	// var buttons;
@@ -18,22 +19,20 @@
 
 	var socket, socketid, clients;
 
-	var svg;
-
 	function init(){
-		socket = io("192.168.123.164:3000");
+		socket = io("192.168.1.125:3000");
 
 		socket.on("socketid",function(data){
 			console.log("data = " + data);
 			if(initialized === false){
 				socketid = data;
 				if(Modernizr.touch) {
-					_mobile.call(this);
-					console.log('modernizr mobile');
+					$.get('/components/mobile.html', _mobile.bind(this));
+					
 				} else {
-					 // $.get('/components/desktop.html', _desktop.call(this));
-					 _mobile.call(this);
-					 console.log('modernizr dasktop');
+					//$.get('/components/mobile.html', _mobile.bind(this));
+					 $.get('/components/desktop.html', _desktop.bind(this));
+					 console.log('modernizr desktop');
 					//_mobile.call(this, socketid);
 				}
 			}
@@ -57,17 +56,21 @@
 		$('h1').text('Mobile = false / id = '+ socketid);
 		Snap.load('assets/svg/faces.svg', loadedFaces);
 		circles = [];
-		console.log(htmlCode);
 		$("body").append($(htmlCode));
 		makeBackground();
 		$(window).resize(function(){
 			makeBackground();
    		});
-		socket.on("makeNewBall",function(data){
-			console.log("making new ball");
-			var circle = new Circle(data);
+		socket.on("makeNewBall",function(socketid, character, color, name){
+			console.log("making new ball with:");
+			console.log("socket: " + socketid);
+			console.log("character: " + character);
+			console.log("color: " + color);
+			console.log("name: " + name);
+			var circle = new Circle(socketid, character, color, name, ground);
 			document.addEventListener('loaded',function(e){
-				svg.appendChild(circle.element);
+				var svg = Snap("#game");
+				svg.append(circle.ventje);
 				circles.push(circle);
 			});
 		});
@@ -124,17 +127,21 @@
 	function makeBackground(){
 		var widthB = window.innerWidth || document.body.clientWidth;
   		var heightB = window.innerHeight || document.body.clientHeight;
-  		var s = Snap("#game");
+  		var s = new Snap("#game");
   		var imageHeight = (607 / 1500)*widthB;
         //cloudMaking();
   		var groundImg = s.select("#ground");
 		s.attr({width: widthB,height: heightB});
 		groundImg.attr({width:widthB,height:imageHeight,x:0,y: heightB - imageHeight});
 		ground = heightB - (((imageHeight/100)*13) + 109);
+		console.log("ground is made and is = " + ground);
+		circles.forEach(function(circle) {
+    		circle.setGround(ground);
+		});
 	}
 
 	function loadedFaces(data){
-		socket.on("makeNewBall",function(data){
+		socket.on("makeNewBall",function(socketid, character, color, name){
 			/*face = data.select("#" + who);
 			line = data.select(".line");
 			line.attr({	strokeMiterLimit: "10",
@@ -150,15 +157,13 @@
 		  	}).animate({"stroke-dashoffset": 10}, 1000,mina.easeout);
 		  	face.animate({opacity: 0.7}, 1000,mina.easeout);*/
 		});
-
 	}
-	function _mobile () {
-		$('body').append('<input type="text" id="txtName" name="txtName" placeholder="Naam"/> <svg xmlns="http://www.w3.org/2000/svg"xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="320" height="570"viewport="0 0 100% 100%"> <title></title> <desc></desc> </svg>');
+	function _mobile (htmlCode) {
+		$('body').append($(htmlCode));
+		$('h1').text('Mobile = true / id = '+ socketid);
+		//$('body').append('<input type="text" id="txtName" name="txtName" placeholder="Naam"/> <svg xmlns="http://www.w3.org/2000/svg"xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="320" height="570"viewport="0 0 100% 100%"> <title></title> <desc></desc> </svg>');
 
-		svg = document.querySelector('svg');
-		svg.width = 320;
-		svg.height = 570;
-
+		var svg = document.querySelector('svg');
 		var mobile = new Mobile(socket, socketid, svg);
 	}
 

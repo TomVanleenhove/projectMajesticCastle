@@ -25,7 +25,6 @@ io.on('connection', function(socket){
 	console.log(client);
 	//io.to(socket.id).emit("socketid",socket.id);
 	socket.emit("socketid",socket.id);
-	socket.broadcast.emit("makeNewBall",socket.id);
 	io.sockets.emit("connect_disconnect",clients);
 
 
@@ -47,7 +46,7 @@ io.on('connection', function(socket){
 		socket.broadcast.emit('shake', jumpingSocketid);
 	});
 	socket.on('shakeToDesktop', function(socketid, character, color, name){
-		socket.broadcast.emit('shakeToDesktop', socketid, character, color, name);
+		socket.broadcast.emit("makeNewBall",socketid, character, color, name);
 		console.log("character = " + character + " and color = " + color + " and name = " + name);
 	});
 });

@@ -47,6 +47,7 @@ function _createInterface () {
 		} else {
 			self.currentCharacter++;
 		}
+		self.currentColor = self.currentCharacter;
 		self.character.setCurrentCharacter(characterList[self.currentCharacter].name);
 	});
 
@@ -56,6 +57,7 @@ function _createInterface () {
 		} else {
 			self.currentCharacter--;
 		}
+		self.currentColor = self.currentCharacter;
 		self.character.setCurrentCharacter(characterList[self.currentCharacter].name);
 	});
 
@@ -86,6 +88,7 @@ function _createArrows (arrow) {
 		} else {
 			self.currentCharacter--;
 		}
+		self.currentColor = self.currentCharacter;
 		self.character.setCurrentCharacter(characterList[self.currentCharacter].name);
 	});
 
@@ -95,6 +98,7 @@ function _createArrows (arrow) {
 		} else {
 			self.currentCharacter++;
 		}
+		self.currentColor = self.currentCharacter;
 		self.character.setCurrentCharacter(characterList[self.currentCharacter].name);
 	});
 
@@ -120,7 +124,7 @@ function _createColors (character) {
 	var xPos = 65;
 	var yPos = 230;
 	var i = 1;
-
+	var self = this;
 	this.colors = [];
 
 	colorList.forEach(function(color){
@@ -144,13 +148,15 @@ function _createColors (character) {
 
 		colorCheckBox.addEventListener('touchstart', function(e){
 			character.setColor(colorCheckBox.getAttribute('fill'));
-			this.currentColor = colorList.indexOf(color);
+			self.currentColor = colorList.indexOf(color);
+
 		});
 
 	}, this);
 }
 
 function _removeInterface () {
+	console.log(this.currentColor);
 	console.log("_removeInterface");
 	$('#leftArrow').first().remove();
 	$('#rightArrow').first().remove();
@@ -178,6 +184,7 @@ function _createInstruction(instructions){
 	mobileInstruction.setAttributeNS(null, 'transform', 'translate(170, 270) scale(0.5,0.5) rotate(180, 50,100)');
 	desktopInstruction.setAttributeNS(null, 'transform', 'translate(45, 250)');
 
+	console.log(this.currentColor);
 
 	window.addEventListener('shake', shakeEventDidOccur.bind(this, this.socket, this.socketid), false);
 

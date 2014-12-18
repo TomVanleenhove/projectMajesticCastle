@@ -22,22 +22,22 @@
 
 	"colors": [
 		{
-			"color":"#F794C1",
+			"color":"#d8ae36",
 		},
 		{
-			"color":"#E8887E",
+			"color":"#7fe2e5",
 		},
 		{
-			"color":"#32E0AA",
+			"color":"#32e0aa",
 		},
 		{
-			"color":"#D8AE36",
+			"color":"#b235db",
 		},
 		{
-			"color":"#B235DB",
+			"color":"#e8887e",
 		},
 		{
-			"color":"#7FE2E5",
+			"color":"#f794c1",
 		},
 	]
 }

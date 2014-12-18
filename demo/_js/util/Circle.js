@@ -1,14 +1,17 @@
 /* globals Snap:true */
 
-function Circle(socketBallId, who){
-	console.log("[Circle] socketballId = " + socketBallId);
-	this.socketBallId = socketBallId;
+function Circle(socketid, character, color, name, ground){
+	console.log("[Circle] socketballId = " + socketid);
+	this.socketBallId = socketid;
+	this.event = new Event('loaded');
 
 	this.ventje;
+	this.characterColor = color;
 	this.jetpack;
 	this.leftJet;
 	this.rightJet;
 	this.nameTag;
+	this.nameTagString = name;
 	this.s = new Snap("#game");
 
 	this.left = false;
@@ -18,11 +21,11 @@ function Circle(socketBallId, who){
 	this.falling = false;
 	this.flying = false;
 	
-	this.who = "megan";
+	this.who = character;
 	this.speed = 10;
 	this.velocity = 0;
 	this.gravity = 0.4;
-	this.ground = 450;
+	this.ground = ground;
 	this.jetpackPower = 0.1;
 
 	this.bodyMatrix = new Snap.Matrix();
@@ -43,10 +46,12 @@ function nameTagMaker(name,left,top){
         return tagHTML;
 }
 function loaded(data){
-		this.nameTag = $(nameTagMaker(this.who, 0, 0));
+		this.nameTag = $(nameTagMaker(this.nameTagString, 0, 0));
         $("#nameTags ul").append(this.nameTag);
-        this.nameTag = $(".nameTag[name='"+this.who+"']");
+        this.nameTag = $(".nameTag[name='"+this.nameTagString+"']");
 		this.ventje = data.select("#" + this.who);
+		this.ventje.select(".bodyColor").attr({fill:this.characterColor});
+
 		this.jetpack = data.select("#jet");
 		this.jetpack.selectAll(".fire").attr({opacity: 0});
 		this.leftJet = this.jetpack.select("#leftJet");
@@ -58,13 +63,12 @@ function loaded(data){
 		this.leftJet.attr({transform: this.leftJetMatrix});
 
 		this.ventje = this.s.group(this.jetpack,this.ventje);
-
 		this.bodyMatrix.scale(0.4,0.4);
 		this.bodyMatrix.f = 0;
 		this.bodyMatrix.e = (window.outerWidth / 2) - (this.ventje.getBBox().width);
 		this.ventje.attr({transform: this.bodyMatrix});
 		//this.ventje.drag(dragmoving, dragstart, dragstop);
-		/*window.addEventListener('keydown', function(event) {
+		window.addEventListener('keydown', function(event) {
 		  switch (event.keyCode) {
 		    case 37: // Left
 		    	left = true;
@@ -94,22 +98,41 @@ function loaded(data){
 		    	left = false;
 		    break;
 		    case 32: // space
-		    	jetpackMode = false;
-		    	jetpack.selectAll(".fire").attr({opacity: 0});
+		    	this.jetpackMode = false;
+		    	this.jetpack.selectAll(".fire").attr({opacity: 0});
 		    break;
 		    case 39: // Right
 		    	right = false;
 		    break;
 		  }
-		}, false);*/
+		}, false);
 
 		window.requestAnimationFrame(step.bind(this));
+		console.log("event dispatched");
+		document.dispatchEvent(this.event);
 	}
 
 Circle.prototype.setControl = function(value){
 	console.log("control changed to " + value);
-	if(this.control !== value){
-		this.control = value;
+		switch (value) {
+		    case "left": // Left
+		    	this.left = true;
+		    	this.right = false;
+		    break;
+		    case "right": // right
+		    	this.right = true;
+		    	this.left = false;
+		    break;
+		    case "":
+		    	this.left = false;
+		    	this.right = false;
+		    break;
+		}
+};
+Circle.prototype.setGround = function(value){
+	console.log("ground changed to " + value);
+	if(this.ground !== value){
+		this.ground = value;
 	}
 };
 
@@ -117,6 +140,21 @@ Circle.prototype.setJumping = function(value){
 	if(this.jumping !== value){
 		this.jumping = true;
 	}
+};
+Circle.prototype.setJet = function(value){
+	if (value){
+		if(falling){
+			console.log("I believe I can fly!!!");
+			this.jetpackMode = true;
+			this.flying = true;
+			this.jetpack.selectAll(".fire").attr({opacity: 1});
+			this.jetpackChange = true;
+		}
+	}else{
+		jetpackMode = false;
+		this.jetpack.selectAll(".fire").attr({opacity: 0});
+	}
+	
 };
 
 Circle.prototype.getSocketBallId = function(){
