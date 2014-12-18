@@ -2,7 +2,42 @@
 	"characters": [
 		{
 			"name": "dirk",
-			"file": "../characters/dirk.svg"
-		}
+		},
+		{
+			"name": "megan",
+		},
+		{
+			"name": "filip",
+		},
+		{
+			"name": "daryl",
+		},
+		{
+			"name": "lenny",
+		},
+		{
+			"name": "boris",
+		},
+	],
+
+	"colors": [
+		{
+			"color":"#F794C1",
+		},
+		{
+			"color":"#E8887E",
+		},
+		{
+			"color":"#32E0AA",
+		},
+		{
+			"color":"#D8AE36",
+		},
+		{
+			"color":"#B235DB",
+		},
+		{
+			"color":"#7FE2E5",
+		},
 	]
 }

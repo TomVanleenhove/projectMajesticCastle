@@ -8,7 +8,7 @@
 
 	var SVGHelper = require('./svg/SVGHelper');
 	var Circle = require('./util/Circle');
-	//var Mobile = require('./mobile/Mobile');
+	var Mobile = require('./mobile/Mobile');
 	var characters = require('./data/characters').characters;
 	var fill = "black";
 	var initialized = false;
@@ -22,16 +22,19 @@
 	var svg;
 
 	function init(){
-		socket = io("192.168.1.39:3000");
+		socket = io("192.168.123.164:3000");
 
 		socket.on("socketid",function(data){
 			console.log("data = " + data);
 			if(initialized === false){
 				socketid = data;
 				if(Modernizr.touch) {
-					$.get('/components/mobile.html', _mobile.bind(this));
+					_mobile.call(this);
+					console.log('modernizr mobile');
 				} else {
-					 $.get('/components/desktop.html', _desktop.bind(this));
+					 // $.get('/components/desktop.html', _desktop.call(this));
+					 _mobile.call(this);
+					 console.log('modernizr dasktop');
 					//_mobile.call(this, socketid);
 				}
 			}
@@ -130,10 +133,11 @@
 		groundImg.attr({width:widthB,height:imageHeight,x:0,y: heightB - imageHeight});
 		ground = heightB - (((imageHeight/100)*13) + 109);
 	}
+
 	function loadedFaces(data){
 		socket.on("makeNewBall",function(data){
 			/*face = data.select("#" + who);
-			line = data.select(".line"); 
+			line = data.select(".line");
 			line.attr({	strokeMiterLimit: "10",
     				strokeDasharray: "9 9",
     				strokeDashOffset: "988.01"});
@@ -147,29 +151,353 @@
 		  	}).animate({"stroke-dashoffset": 10}, 1000,mina.easeout);
 		  	face.animate({opacity: 0.7}, 1000,mina.easeout);*/
 		});
-		
+
 	}
-	function _mobile (htmlCode) {
-		$('h1').text('Mobile = true / id = '+ socketid);
-		$("body").append($(htmlCode));
-		var mobile = new Mobile(socket, socketid, characters, svg);
+	function _mobile () {
+		$('body').append('<input type="text" id="txtName" name="txtName" placeholder="Naam"/> <svg xmlns="http://www.w3.org/2000/svg"xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="320" height="570"viewport="0 0 100% 100%"> <title></title> <desc></desc> </svg>');
+
+		svg = document.querySelector('svg');
+		svg.width = 320;
+		svg.height = 570;
+
+		var mobile = new Mobile(socket, socketid, svg);
 	}
 
 	init();
 
 })();
 
-},{"./data/characters":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/data/characters.json","./svg/SVGHelper":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/svg/SVGHelper.js","./util/Circle":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/util/Circle.js","./util/requestAnimationFrame":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/util/requestAnimationFrame.js"}],"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/data/characters.json":[function(require,module,exports){
-module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports={
+},{"./data/characters":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/data/characters.json","./mobile/Mobile":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/mobile/Mobile.js","./svg/SVGHelper":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/svg/SVGHelper.js","./util/Circle":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/util/Circle.js","./util/requestAnimationFrame":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/util/requestAnimationFrame.js"}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/data/characters.json":[function(require,module,exports){
+module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports={
 	"characters": [
 		{
 			"name": "dirk",
-			"file": "../characters/dirk.svg"
-		}
+		},
+		{
+			"name": "megan",
+		},
+		{
+			"name": "filip",
+		},
+		{
+			"name": "daryl",
+		},
+		{
+			"name": "lenny",
+		},
+		{
+			"name": "boris",
+		},
+	],
+
+	"colors": [
+		{
+			"color":"#F794C1",
+		},
+		{
+			"color":"#E8887E",
+		},
+		{
+			"color":"#32E0AA",
+		},
+		{
+			"color":"#D8AE36",
+		},
+		{
+			"color":"#B235DB",
+		},
+		{
+			"color":"#7FE2E5",
+		},
 	]
 }
 
-},{}],"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/svg/SVGHelper.js":[function(require,module,exports){
+},{}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/mobile/Character.js":[function(require,module,exports){
+var self;
+
+function Character (id, color, svg) {
+
+	this.svg = svg;
+	this.id = id;
+
+	this.color = color;
+
+	self = this;
+
+	this.currentCharacter;
+	this.characterSpriteSheet;
+
+	console.log("id = "+this.id+" and color = "+this.color);
+
+	$.get('../characters/characters2.svg', _createCharacter.bind(this));
+
+}
+
+
+function _createCharacter (characterSpriteSheet) {
+	// console.log("current char = " + this.id);
+	this.characterSpriteSheet = characterSpriteSheet.documentElement;
+	this.currentCharacter = this.characterSpriteSheet.querySelector('#'+this.id);
+	this.svg.appendChild(this.currentCharacter);
+	// this.currentCharacter.setAttributeNS(null, 'transform', 'scale(0.5,0.5) translate(' + (((this.svg.width.baseVal.value/2)-(bbox.width/2))*3) + ',' + (((this.svg.height.baseVal.value/2)-(bbox.height/2))*3)  + ')');
+	this.currentCharacter.setAttributeNS(null, 'transform', 'scale(0.5,0.5) translate(200,10)');
+}
+
+Character.prototype.setCurrentCharacter = function (id) {
+	self.id = id;
+	// console.log('setter ' + self.id);
+	$(self.currentCharacter).first().remove();
+	$.get('../characters/characters2.svg', _createCharacter.bind(self));
+};
+
+Character.prototype.setColor = function (color) {
+	self.color = color;
+	var body = self.currentCharacter.querySelector('.body > path');
+	body.setAttributeNS(null, 'fill', color);
+};
+
+module.exports = Character;
+
+},{}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/mobile/Mobile.js":[function(require,module,exports){
+/* globals Hammer:true */
+/* globals Shake:true */
+
+var SVGHelper = require('../svg/SVGHelper.js');
+var characterList = require('../data/characters.json').characters;
+var colorList = require('../data/characters.json').colors;
+var Character = require('./Character.js');
+
+function Mobile (socket, socketid, svg) {
+
+	this.svg = svg;
+
+	console.log(svg);
+
+	this.socket = socket;
+	this.socketid = socketid;
+
+	this.mc = new Hammer(this.svg);
+
+	var bg = SVGHelper.createElement('rect');
+	bg.setAttribute('rx', 0);
+	bg.setAttribute('ry', 0);
+	bg.setAttribute('width', '100%');
+	bg.setAttribute('height', '100%');
+	bg.setAttribute('fill', '#E5D4A8');
+
+	svg.appendChild(bg);
+
+
+	this.currentCharacter = 0;
+	this.currentColor = 0;
+
+
+	this.character = new Character(characterList[this.currentCharacter].name, colorList[this.currentColor].color, this.svg);
+
+	_createInterface.call(this);
+
+}
+
+function _createInterface () {
+	var self = this;
+
+
+	this.mc.on("swipeleft", function() {
+		if(self.currentCharacter >= characterList.length - 1) {
+			self.currentCharacter = 0;
+		} else {
+			self.currentCharacter++;
+		}
+		self.character.setCurrentCharacter(characterList[self.currentCharacter].name);
+	});
+
+	this.mc.on("swiperight", function() {
+		if(self.currentCharacter <= 0) {
+			self.currentCharacter = characterList.length - 1;
+		} else {
+			self.currentCharacter--;
+		}
+		self.character.setCurrentCharacter(characterList[self.currentCharacter].name);
+	});
+
+
+	$.get('../characters/arrow.svg', _createArrows.bind(this));
+	_createColors.call(this, this.character);
+
+	$.get('../characters/start_button.svg', _createReadyButton.bind(this));
+
+}
+
+function _createArrows (arrow) {
+	arrow = arrow.documentElement;
+	var leftArrow = arrow.querySelector('#leftArrow');
+	var rightArrow = arrow.querySelector('#rightArrow');
+
+	var self = this;
+
+	leftArrow.setAttributeNS(null, 'transform', 'scale(0.7,0.7) translate(10, 80)');
+	rightArrow.setAttributeNS(null, 'transform', 'scale(0.7,0.7) translate(370, 80)');
+
+	this.svg.appendChild(leftArrow);
+	this.svg.appendChild(rightArrow);
+
+	leftArrow.addEventListener('touchstart', function(e){
+		if(self.currentCharacter <= 0) {
+			self.currentCharacter = characterList.length - 1;
+		} else {
+			self.currentCharacter--;
+		}
+		self.character.setCurrentCharacter(characterList[self.currentCharacter].name);
+	});
+
+	rightArrow.addEventListener('touchstart', function(e){
+		if(self.currentCharacter >= characterList.length - 1) {
+			self.currentCharacter = 0;
+		} else {
+			self.currentCharacter++;
+		}
+		self.character.setCurrentCharacter(characterList[self.currentCharacter].name);
+	});
+
+}
+
+function _createReadyButton (button) {
+	var self = this;
+	button = button.documentElement;
+	var buttonElement = button.querySelector('#readyButton');
+	this.svg.appendChild(buttonElement);
+	buttonElement.setAttributeNS(null, 'transform', 'translate(80, 450) scale(1.3, 1.3)');
+
+	buttonElement.addEventListener('touchstart', function(e){
+		if($('#txtName').val() !== '') {
+			console.log("name not empty");
+			self.name = $('#txtName').val();
+			_removeInterface.call(self);
+		}
+	});
+}
+
+function _createColors (character) {
+	var xPos = 65;
+	var yPos = 230;
+	var i = 1;
+
+	this.colors = [];
+
+	colorList.forEach(function(color){
+
+		var colorCheckBox = SVGHelper.createElement('rect');
+		colorCheckBox.setAttributeNS(null, 'x', xPos);
+		colorCheckBox.setAttributeNS(null, 'y', yPos);
+		colorCheckBox.setAttributeNS(null, 'width', 50);
+		colorCheckBox.setAttributeNS(null, 'height', 50);
+		colorCheckBox.setAttributeNS(null, 'class', 'colorCheckBox');
+		colorCheckBox.setAttributeNS(null, 'fill', color.color);
+		this.svg.appendChild(colorCheckBox);
+
+		xPos += 70;
+		if (i%3 === 0) {
+			yPos += 70;
+			xPos = 65;
+		}
+
+		i++;
+
+		colorCheckBox.addEventListener('touchstart', function(e){
+			character.setColor(colorCheckBox.getAttribute('fill'));
+			this.currentColor = colorList.indexOf(color);
+		});
+
+	}, this);
+}
+
+function _removeInterface () {
+	console.log("_removeInterface");
+	$('#leftArrow').first().remove();
+	$('#rightArrow').first().remove();
+	$('.colorCheckBox').remove();
+	$('#readyButton').first().remove();
+	$('#txtName').remove();
+
+	this.mc.off("swipeleft");
+	this.mc.off("swiperight");
+
+
+	$.get('../characters/instruction.svg', _createInstruction.bind(this));
+
+}
+
+function _createInstruction(instructions){
+	console.log('_createInstructions');
+	instructions = instructions.documentElement;
+	var mobileInstruction = instructions.querySelector('#mobile');
+	var desktopInstruction = instructions.querySelector('#desktop');
+
+	this.svg.appendChild(mobileInstruction);
+	this.svg.appendChild(desktopInstruction);
+
+	mobileInstruction.setAttributeNS(null, 'transform', 'translate(170, 270) scale(0.5,0.5) rotate(180, 50,100)');
+	desktopInstruction.setAttributeNS(null, 'transform', 'translate(45, 250)');
+
+
+	window.addEventListener('shake', shakeEventDidOccur.bind(this, this.socket, this.socketid), false);
+
+}
+
+function shakeEventDidOccur (socket, socketid) {
+
+	socket.emit('shakeToDesktop', socketid, characterList[this.currentCharacter].name, colorList[this.currentColor].color, this.name);
+}
+
+module.exports = Mobile;
+
+// CODE VOOR BUTTONS
+
+	// svg = document.querySelector('svg');
+	// svg.width = window.innerWidth;
+	// svg.height = window.innerHeight;
+
+	// for (var i = 0; i < 2; i++) {
+
+	// 	var circle = SVGHelper.createElement('circle');
+	// 			circle.setAttribute('cx', buttonPos); // cx = middelpunt v d cirkel in svg
+	// 			circle.setAttribute('cy', '50%');
+	// 			circle.setAttribute('r', 35);
+	// 			circle.setAttribute('fill', 'white');
+	// 			circle.setAttribute('dislpay', 'block');
+	// 			//circle.setAttribute('-webkit-user-select', 'none');
+
+	// 			svg.appendChild(circle);
+
+	// 			buttons.push(circle);
+
+	// 			buttonPos = '66%';
+	// 		}
+
+
+	// 		buttons.forEach(function(button){
+	// 			var buttonElement = {pressed:"",socketid:socketid};
+	// 			button.addEventListener('touchstart', function(e){
+	// 				switch (button) {
+	// 					case buttons[0] :
+	// 					buttonElement.pressed = "left";
+	// 					socket.emit("button_pressed", buttonElement);
+	// 					break;
+	// 					case buttons[1] :
+	// 					buttonElement.pressed = "right";
+	// 					socket.emit("button_pressed", buttonElement);
+	// 					break;
+	// 				}
+	// 			});
+
+	// 			button.addEventListener('touchend', function(e){
+	// 				buttonElement.pressed = "";
+	// 				socket.emit("button_pressed", buttonElement);
+	// 			});
+
+	// 		});
+
+},{"../data/characters.json":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/data/characters.json","../svg/SVGHelper.js":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/svg/SVGHelper.js","./Character.js":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/mobile/Character.js"}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/svg/SVGHelper.js":[function(require,module,exports){
 var namespace = "http://www.w3.org/2000/svg";
 
 function SVGHelper(){
@@ -183,7 +511,7 @@ SVGHelper.createElement = function(el){
 
 module.exports = SVGHelper;
 
-},{}],"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/util/Circle.js":[function(require,module,exports){
+},{}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/util/Circle.js":[function(require,module,exports){
 /* globals Snap:true */
 
 function Circle(socketBallId, who){
@@ -427,7 +755,7 @@ function step() {
 
 module.exports = Circle;
 
-},{}],"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/util/requestAnimationFrame.js":[function(require,module,exports){
+},{}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/util/requestAnimationFrame.js":[function(require,module,exports){
 module.exports = (function(){
 	return  window.requestAnimationFrame       || // vedor prefixes. requestanimationframe is beste manier om te animeren in javascript
 	        window.webkitRequestAnimationFrame ||

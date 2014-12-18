@@ -46,6 +46,10 @@ io.on('connection', function(socket){
 		console.log("pressed: jump / id: " + jumpingSocketid);
 		socket.broadcast.emit('shake', jumpingSocketid);
 	});
+	socket.on('shakeToDesktop', function(socketid, character, color, name){
+		socket.broadcast.emit('shakeToDesktop', socketid, character, color, name);
+		console.log("character = " + character + " and color = " + color + " and name = " + name);
+	});
 });
 
 server.listen(port, function() {

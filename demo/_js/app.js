@@ -7,7 +7,7 @@
 
 	var SVGHelper = require('./svg/SVGHelper');
 	var Circle = require('./util/Circle');
-	//var Mobile = require('./mobile/Mobile');
+	var Mobile = require('./mobile/Mobile');
 	var characters = require('./data/characters').characters;
 	var fill = "black";
 	var initialized = false;
@@ -21,16 +21,19 @@
 	var svg;
 
 	function init(){
-		socket = io("192.168.1.39:3000");
+		socket = io("192.168.123.164:3000");
 
 		socket.on("socketid",function(data){
 			console.log("data = " + data);
 			if(initialized === false){
 				socketid = data;
 				if(Modernizr.touch) {
-					$.get('/components/mobile.html', _mobile.bind(this));
+					_mobile.call(this);
+					console.log('modernizr mobile');
 				} else {
-					 $.get('/components/desktop.html', _desktop.bind(this));
+					 // $.get('/components/desktop.html', _desktop.call(this));
+					 _mobile.call(this);
+					 console.log('modernizr dasktop');
 					//_mobile.call(this, socketid);
 				}
 			}
@@ -129,10 +132,11 @@
 		groundImg.attr({width:widthB,height:imageHeight,x:0,y: heightB - imageHeight});
 		ground = heightB - (((imageHeight/100)*13) + 109);
 	}
+
 	function loadedFaces(data){
 		socket.on("makeNewBall",function(data){
 			/*face = data.select("#" + who);
-			line = data.select(".line"); 
+			line = data.select(".line");
 			line.attr({	strokeMiterLimit: "10",
     				strokeDasharray: "9 9",
     				strokeDashOffset: "988.01"});
@@ -146,12 +150,16 @@
 		  	}).animate({"stroke-dashoffset": 10}, 1000,mina.easeout);
 		  	face.animate({opacity: 0.7}, 1000,mina.easeout);*/
 		});
-		
+
 	}
-	function _mobile (htmlCode) {
-		$('h1').text('Mobile = true / id = '+ socketid);
-		$("body").append($(htmlCode));
-		var mobile = new Mobile(socket, socketid, characters, svg);
+	function _mobile () {
+		$('body').append('<input type="text" id="txtName" name="txtName" placeholder="Naam"/> <svg xmlns="http://www.w3.org/2000/svg"xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="320" height="570"viewport="0 0 100% 100%"> <title></title> <desc></desc> </svg>');
+
+		svg = document.querySelector('svg');
+		svg.width = 320;
+		svg.height = 570;
+
+		var mobile = new Mobile(socket, socketid, svg);
 	}
 
 	init();

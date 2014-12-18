@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.1.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="80px"
+	 height="80px" viewBox="-9 -15 80 80" enable-background="new -9 -15 80 80" xml:space="preserve">
+<g id="rightArrow_1_">
+	<g id="rightArrow">
+		<polygon fill="#32E0AA" points="-4,-13.2 68.2,24 -4,63.2 -0.2,39.2 		"/>
+		<polygon fill="#1BEA96" points="-4,-13.2 25.7,21.8 68.2,24 		"/>
+		<polygon fill="#2AC692" points="25.7,21.8 17.3,51.6 68.2,24 		"/>
+		<polygon fill="#32B284" points="-0.2,39.2 25.7,21.8 17.3,51.6 -4,63.2 		"/>
+	</g>
+</g>
+<g id="leftArrow">
+	<g id="leftArrow_1_">
+		<polygon fill="#32E0AA" points="68.2,-13.2 -4,24 68.2,63.2 64.3,39.2 		"/>
+		<polygon fill="#1BEA96" points="68.2,-13.2 38.5,21.8 -4,24 		"/>
+		<polygon fill="#2AC692" points="38.5,21.8 46.9,51.6 -4,24 		"/>
+		<polygon fill="#32B284" points="64.3,39.2 38.5,21.8 46.9,51.6 68.2,63.2 		"/>
+	</g>
+</g>
+</svg>
