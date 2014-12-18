@@ -1,0 +1,40 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0; }
+
+body, html {
+  font-size: 62.5%;
+  height: 100%;
+  width: 100%; }
+
+circle {
+  -webkit-user-select: none; }
+
+Body {
+  position: relative; }
+
+#facesS {
+  z-index: 1;
+  position: absolute;
+  left: 0;
+  top: 0; }
+
+#game {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: -1;
+  color: #ffffff; }
+
+.nameTag {
+  position: absolute;
+  text-decoration: none;
+  list-style: none;
+  background-color: #204c87;
+  border-radius: 10px 10px 10px 1px;
+  color: #ffffff;
+  font-family: helvetica, arial, sans-serif; }
+
+.nameTag p {
+  margin: 10px; }
