@@ -1,0 +1,47 @@
+{
+	"characters": {
+
+				"megan":[{
+					"file":"sound/megan_jump.wav",
+					// "brake":"sound/megan_brake.wav",
+					// "jetpack":"sound/jetpack.wav",
+					// "talk":"sound/megan.wav"
+				}],
+
+				"filip":[{
+					"file":"sound/filip_jump.wav",
+					// "brake":"sound/filip_brake.wav",
+					// "jetpack":"sound/jetpack.wav",
+					// "talk":"sound/filip.wav"
+				}],
+
+				"daryl":[{
+					"file":"sound/daryl_jump.wav",
+					// "brake":"sound/daryl_brake.wav",
+					// "jetpack":"sound/jetpack.wav",
+					// "talk":"sound/daryl.wav"
+				}],
+
+				"lenny":[{
+					"file":"sound/lenny_jump.wav",
+					// "brake":"sound/lenny_brake.wav",
+					// "jetpack":"sound/jetpack.wav",
+					// "talk":"sound/lenny.wav"
+				}],
+
+				"dirk":[{
+					"file":"sound/dirk_jump.wav",
+					"brake":"sound/dirk_brake.wav",
+					"jetpack":"sound/jetpack.wav",
+					"talk":"sound/dirk.wav"
+				}],
+
+				"boris":[{
+					"file":"sound/boris_jump.wav",
+					// "brake":"sound/boris_brake.wav",
+					// "jetpack":"sound/jetpack.wav",
+					// "talk":"sound/boris.wav"
+				}],
+
+				}
+}

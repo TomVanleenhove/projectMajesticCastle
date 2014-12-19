@@ -11,6 +11,8 @@
 	var Circle = require('./util/Circle');
 	var Mobile = require('./mobile/Mobile');
 	var characters = require('./data/characters').characters;
+	var BufferLoader = require('./sound/BufferLoader');
+	var Player = require('./sound/Player');
 	var initialized = false;
 	var ground;
 
@@ -21,7 +23,7 @@
 	var socket, socketid, clients;
 
 	function init(){
-		socket = io("192.168.1.148:3000");
+		socket = io("http://192.168.123.164:3000");
 
 		socket.on("socketid",function(data){
 			console.log("data = " + data);
@@ -29,11 +31,11 @@
 				socketid = data;
 				if(Modernizr.touch) {
 					$.get('/components/mobile.html', _mobile.bind(this));
-					
+
 				} else {
 					//$.get('/components/mobile.html', _mobile.bind(this));
-					 $.get('/components/desktop.html', _desktop.bind(this));
-					 console.log('modernizr desktop');
+					$.get('/components/desktop.html', _desktop.bind(this));
+					console.log('modernizr desktop');
 					//_mobile.call(this, socketid);
 				}
 			}
@@ -44,38 +46,45 @@
 			clients = data;
 			//console.log(clients);
 			$(".clients").empty();
-		for(var i = 0; i < clients.length; i++){
-			if(clients[i].socketid === socketid){
-				console.log("client = " + clients[i]);
-				clients[i].button = false;
+			for(var i = 0; i < clients.length; i++){
+				if(clients[i].socketid === socketid){
+					console.log("client = " + clients[i]);
+					clients[i].button = false;
+				}
 			}
-		}
+		});
+
+
+	//
+}
+// function soundsLoaded(arr){
+// 	console.log("HOORAY");
+// 	console.log(arr);
+// }
+function makeNewChar(client){
+	console.log("making new ball with:");
+	console.log("socket: " + client.socketid);
+	console.log("character: " + client.character);
+	console.log("color: " + client.color);
+	console.log("name: " + client.name);
+	var circle = new Circle(client.socketid, client.character, client.color, client.name, ground);
+	document.addEventListener('loaded',function(e){
+		var svg = new Snap("#game");
+		svg.append(circle.ventje);
+		circles.push(circle);
 	});
-	}
-	function makeNewChar(client){
-		console.log("making new ball with:");
-		console.log("socket: " + client.socketid);
-		console.log("character: " + client.character);
-		console.log("color: " + client.color);
-		console.log("name: " + client.name);
-		var circle = new Circle(client.socketid, client.character, client.color, client.name, ground);
-		document.addEventListener('loaded',function(e){
-			var svg = new Snap("#game");
-			svg.append(circle.ventje);
-			circles.push(circle);
-		});
-	}
-	function _desktop(htmlCode){
-		$('h1').text('Mobile = false / id = '+ socketid);
-		circles = [];
-		$("body").append($(htmlCode));
+}
+function _desktop(htmlCode){
+	$('h1').text('Mobile = false / id = '+ socketid);
+	circles = [];
+	$("body").append($(htmlCode));
+	makeBackground();
+	$(window).resize(function(){
 		makeBackground();
-		$(window).resize(function(){
-			makeBackground();
-   		});
-		socket.on("makeNewBall",function(client){
-			makeNewChar(client);
-		});
+	});
+	socket.on("makeNewBall",function(client){
+		makeNewChar(client);
+	});
 
 		// speed = 10 + Math.round(Math.random() * (50 - 10));
 		// _enterFrame.call(this);
@@ -137,14 +146,14 @@
 			console.log("removing: " + socketBallId);
 			if (circles !== []) {
 				circles.forEach(function(circle) {
-    				if (circle.getSocketBallId() === socketBallId){
-				    	console.log("removed: " + socketBallId);
-				    	console.log(circle);
-				    	circles.splice(circles.indexOf(circle),1);
-				    	circle.nameTag.remove();
-				    	circle.ventje.remove();
-				    	circle.remove();
-				    }
+					if (circle.getSocketBallId() === socketBallId){
+						console.log("removed: " + socketBallId);
+						console.log(circle);
+						circles.splice(circles.indexOf(circle),1);
+						circle.nameTag.remove();
+						circle.ventje.remove();
+						circle.remove();
+					}
 				});
 			}
 		});
@@ -156,52 +165,52 @@
 	}
 	function makeBackground(){
 		var widthB = window.innerWidth || document.body.clientWidth;
-  		var heightB = window.innerHeight || document.body.clientHeight;
-  		var s = new Snap("#game");
-  		var imageHeight = (607 / 1500)*widthB;
+		var heightB = window.innerHeight || document.body.clientHeight;
+		var s = new Snap("#game");
+		var imageHeight = (607 / 1500)*widthB;
         //cloudMaking();
-  		var groundImg = s.select("#ground");
-  		cloudMaking();
-		s.attr({width: widthB,height: heightB});
-		groundImg.attr({width:widthB,height:imageHeight,x:0,y: heightB - imageHeight});
-		ground = heightB - (((imageHeight/100)*13) + 109);
-		console.log("ground is made and is = " + ground);
-		circles.forEach(function(circle){
-    		circle.setBoundries(ground);
-		});
-	}
-	function cloudMaking(){
-    	var delay = 0;
-    	Snap("#game").selectAll(".cloud").forEach(function(cloud){
-    		setTimeout(function() {makeCloudMove(cloud);}.bind(cloud), delay);
-    		delay += 2000;
-		});
-    }
-    function makeCloudMove(cloud){
-    	cloud.attr({width: 100,height: 100});
-    	var cloudMatrix = new Snap.Matrix();
-     		cloudMatrix.scale(0.1);
+        var groundImg = s.select("#ground");
+        cloudMaking();
+        s.attr({width: widthB,height: heightB});
+        groundImg.attr({width:widthB,height:imageHeight,x:0,y: heightB - imageHeight});
+        ground = heightB - (((imageHeight/100)*13) + 109);
+        console.log("ground is made and is = " + ground);
+        circles.forEach(function(circle){
+        	circle.setBoundries(ground);
+        });
+      }
+      function cloudMaking(){
+      	var delay = 0;
+      	Snap("#game").selectAll(".cloud").forEach(function(cloud){
+      		setTimeout(function() {makeCloudMove(cloud);}.bind(cloud), delay);
+      		delay += 2000;
+      	});
+      }
+      function makeCloudMove(cloud){
+      	cloud.attr({width: 100,height: 100});
+      	var cloudMatrix = new Snap.Matrix();
+      	cloudMatrix.scale(0.1);
      		cloudMatrix.e = Math.floor(Math.random() * (window.innerWidth || document.body.clientWidth)); //x
      		cloudMatrix.f = (window.innerHeight || document.body.clientHeight)/2;//y
 
-    	cloud.attr({transform:cloudMatrix});
+     		cloud.attr({transform:cloudMatrix});
 
-    		cloudMatrix.a = 2;
-    		cloudMatrix.d = 2;
-			cloudMatrix.f = -200;  
-			if(cloudMatrix.e > (window.innerWidth || document.body.clientWidth) / 2) {
-				cloudMatrix.e += 200;
-			} else{
-				cloudMatrix.e -= 200;
-			}
+     		cloudMatrix.a = 2;
+     		cloudMatrix.d = 2;
+     		cloudMatrix.f = -200;
+     		if(cloudMatrix.e > (window.innerWidth || document.body.clientWidth) / 2) {
+     			cloudMatrix.e += 200;
+     		} else{
+     			cloudMatrix.e -= 200;
+     		}
 
-    	cloud.animate({transform:cloudMatrix}, Math.floor(Math.random() * 7000) + 6000,function(){
-    		makeCloudMove(cloud);
-    	}.bind(cloud));
-    }
-	function _mobile (htmlCode) {
-		$('body').append($(htmlCode));
-		$('h1').text('Mobile = true / id = '+ socketid);
+     		cloud.animate({transform:cloudMatrix}, Math.floor(Math.random() * 7000) + 6000,function(){
+     			makeCloudMove(cloud);
+     		}.bind(cloud));
+     	}
+     	function _mobile (htmlCode) {
+     		$('body').append($(htmlCode));
+     		$('h1').text('Mobile = true / id = '+ socketid);
 		//$('body').append('<input type="text" id="txtName" name="txtName" placeholder="Naam"/> <svg xmlns="http://www.w3.org/2000/svg"xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="320" height="570"viewport="0 0 100% 100%"> <title></title> <desc></desc> </svg>');
 
 		var svg = document.querySelector('svg');
@@ -212,8 +221,8 @@
 
 })();
 
-},{"./data/characters":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/data/characters.json","./mobile/Mobile":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/mobile/Mobile.js","./svg/SVGHelper":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/svg/SVGHelper.js","./util/Circle":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/util/Circle.js","./util/requestAnimationFrame":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/util/requestAnimationFrame.js"}],"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/data/characters.json":[function(require,module,exports){
-module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports={
+},{"./data/characters":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/data/characters.json","./mobile/Mobile":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/mobile/Mobile.js","./sound/BufferLoader":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/sound/BufferLoader.js","./sound/Player":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/sound/Player.js","./svg/SVGHelper":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/svg/SVGHelper.js","./util/Circle":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/util/Circle.js","./util/requestAnimationFrame":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/util/requestAnimationFrame.js"}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/data/characters.json":[function(require,module,exports){
+module.exports=module.exports={
 	"characters": [
 		{
 			"name": "dirk",
@@ -257,7 +266,56 @@ module.exports=module.exports=module.exports=module.exports=module.exports=modul
 	]
 }
 
-},{}],"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/mobile/Character.js":[function(require,module,exports){
+},{}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/data/sounds.json":[function(require,module,exports){
+module.exports=module.exports={
+	"characters": {
+
+				"megan":[{
+					"file":"sound/megan_jump.wav",
+					// "brake":"sound/megan_brake.wav",
+					// "jetpack":"sound/jetpack.wav",
+					// "talk":"sound/megan.wav"
+				}],
+
+				"filip":[{
+					"file":"sound/filip_jump.wav",
+					// "brake":"sound/filip_brake.wav",
+					// "jetpack":"sound/jetpack.wav",
+					// "talk":"sound/filip.wav"
+				}],
+
+				"daryl":[{
+					"file":"sound/daryl_jump.wav",
+					// "brake":"sound/daryl_brake.wav",
+					// "jetpack":"sound/jetpack.wav",
+					// "talk":"sound/daryl.wav"
+				}],
+
+				"lenny":[{
+					"file":"sound/lenny_jump.wav",
+					// "brake":"sound/lenny_brake.wav",
+					// "jetpack":"sound/jetpack.wav",
+					// "talk":"sound/lenny.wav"
+				}],
+
+				"dirk":[{
+					"file":"sound/dirk_jump.wav",
+					"brake":"sound/dirk_brake.wav",
+					"jetpack":"sound/jetpack.wav",
+					"talk":"sound/dirk.wav"
+				}],
+
+				"boris":[{
+					"file":"sound/boris_jump.wav",
+					// "brake":"sound/boris_brake.wav",
+					// "jetpack":"sound/jetpack.wav",
+					// "talk":"sound/boris.wav"
+				}],
+
+				}
+}
+
+},{}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/mobile/Character.js":[function(require,module,exports){
 var self;
 
 function Character (id, color, svg) {
@@ -303,7 +361,7 @@ Character.prototype.setColor = function (color) {
 
 module.exports = Character;
 
-},{}],"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/mobile/Mobile.js":[function(require,module,exports){
+},{}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/mobile/Mobile.js":[function(require,module,exports){
 /* globals Hammer:true */
 /* globals Shake:true */
 
@@ -627,7 +685,79 @@ module.exports = Mobile;
 
 	// 		});
 
-},{"../data/characters.json":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/data/characters.json","../svg/SVGHelper.js":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/svg/SVGHelper.js","./Character.js":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/mobile/Character.js"}],"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/svg/SVGHelper.js":[function(require,module,exports){
+},{"../data/characters.json":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/data/characters.json","../svg/SVGHelper.js":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/svg/SVGHelper.js","./Character.js":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/mobile/Character.js"}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/sound/BufferLoader.js":[function(require,module,exports){
+function BufferLoader(context, urlList, callback) {
+	this.context = context;
+	this.urlList = urlList;
+	this.onload = callback;
+	this.bufferList = [];
+	this.loadCount = 0;
+}
+
+BufferLoader.prototype.loadBuffer = function(url, index) {
+	var request = new XMLHttpRequest();
+	request.open("GET", url, true);
+	request.responseType = "arraybuffer";
+
+	var loader = this;
+
+	request.onload = function() {
+		// Asynchronously decode the audio file data in request.response
+		console.log("loading");
+		loader.context.decodeAudioData(
+			request.response,
+			function(buffer) {
+				if (!buffer) {
+					console.error('error decoding file data: ' + url);
+					return;
+				}
+				loader.bufferList.push(buffer);
+				if(++loader.loadCount === loader.urlList.length){
+					loader.onload(loader.bufferList);
+				}
+			},
+			function(error) {
+				console.error('decodeAudioData error', error);
+			}
+		);
+	};
+
+	request.onerror = function() {
+		console.error('BufferLoader: XHR error');
+	};
+
+	request.send();
+};
+
+BufferLoader.prototype.load = function() {
+	for (var i = 0; i < this.urlList.length; ++i){
+		this.loadBuffer(this.urlList[i].file, this.urlList[i].name);
+	}
+};
+
+module.exports = BufferLoader;
+
+},{}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/sound/Player.js":[function(require,module,exports){
+function Player(context){
+	this.context = context;
+}
+
+Player.prototype.play = function(soundboard){
+		// console.log(soundboard);
+	var source = this.context.createBufferSource();
+	source.buffer = soundboard[0];
+	source.start(0);
+
+	var gain = this.context.createGain();
+	// gain.gain.value = static.volume;
+
+	source.connect(gain);
+	gain.connect(this.context.destination);
+};
+
+module.exports = Player;
+
+},{}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/svg/SVGHelper.js":[function(require,module,exports){
 var namespace = "http://www.w3.org/2000/svg";
 
 function SVGHelper(){
@@ -641,13 +771,31 @@ SVGHelper.createElement = function(el){
 
 module.exports = SVGHelper;
 
-},{}],"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/util/Circle.js":[function(require,module,exports){
+},{}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/util/Circle.js":[function(require,module,exports){
 /* globals Snap:true */
 
+var BufferLoader = require('../sound/BufferLoader');
+var Player = require('../sound/Player');
+var allSounds = require('../data/sounds.json').characters;
+var self;
 function Circle(socketid, character, color, name, ground){
-	console.log("[Circle] socketballId = " + socketid);
+	// console.log("[Circle] socketballId = " + socketid);
 	this.socketBallId = socketid;
 	this.event = new Event('loaded');
+
+	// console.log(this.currentCharacterSounds);
+	self = this;
+
+	this.curentCharacterSoundBoard = allSounds[character];
+	// console.log(this.curentCharacterSoundBoard);
+
+	window.AudioContext = window.AudioContext||window.webkitAudioContext;
+
+	var context = new AudioContext();
+	this.player = new Player(context);
+
+	var loader = new BufferLoader(context, this.curentCharacterSoundBoard, soundsLoaded); // bufferloader vraagt context, setje geluiden en voert dan die functie uit
+	loader.load();
 
 	this.ventje;
 	this.characterColor = color;
@@ -664,7 +812,7 @@ function Circle(socketid, character, color, name, ground){
 	this.jumping = false;
 	this.falling = false;
 	this.flying = false;
-	
+
 	this.who = character;
 	this.speed = 10;
 	this.velocity = 0;
@@ -680,74 +828,80 @@ function Circle(socketid, character, color, name, ground){
 
 	this.changeFace = false;
 	this.faceToNormal = false;
-	
+
 	this.havingControl = true;
 	this.jetpackMode = false;
 	this.jetpackChange = false;
-    
+
 	Snap.load('assets/svg/characters.svg', loaded.bind(this));
 }
 function nameTagMaker(name,left,top){
-        var tagHTML = "<li class='nameTag' name='"+name+"' style='left:"+left+"px; top:"+top+"px;'><p>"+name+"</p></li>";
-        return tagHTML;
+	var tagHTML = "<li class='nameTag' name='"+name+"' style='left:"+left+"px; top:"+top+"px;'><p>"+name+"</p></li>";
+	return tagHTML;
+}
+function soundsLoaded(arr){
+	// console.log(arr);
+	self.soundBoard = arr;
 }
 function loaded(data){
-		this.nameTag = $(nameTagMaker(this.nameTagString, 0, 0));
-        $("#nameTags ul").append(this.nameTag);
-        this.nameTag = $(".nameTag[name='"+this.nameTagString+"']");
-		this.ventje = data.select("#" + this.who);
-		this.ventje.select(".bodyColor").attr({fill:this.characterColor});
+	this.nameTag = $(nameTagMaker(this.nameTagString, 0, 0));
+	$("#nameTags ul").append(this.nameTag);
+	this.nameTag = $(".nameTag[name='"+this.nameTagString+"']");
+	this.ventje = data.select("#" + this.who);
+	this.ventje.select(".bodyColor").attr({fill:this.characterColor});
 
-		this.jetpack = data.select("#jet");
-		this.jetpack.selectAll(".fire").attr({opacity: 0});
-		this.leftJet = this.jetpack.select("#leftJet");
-		this.rightJet = this.jetpack.select("#rightJet");
+	this.jetpack = data.select("#jet");
+	this.jetpack.selectAll(".fire").attr({opacity: 0});
+	this.leftJet = this.jetpack.select("#leftJet");
+	this.rightJet = this.jetpack.select("#rightJet");
 
-		this.rightJetMatrix.translate(-80,0);
-		this.leftJetMatrix.translate(80,0);
-		this.rightJet.attr({transform: this.rightJetMatrix});
-		this.leftJet.attr({transform: this.leftJetMatrix});
+	this.rightJetMatrix.translate(-80,0);
+	this.leftJetMatrix.translate(80,0);
+	this.rightJet.attr({transform: this.rightJetMatrix});
+	this.leftJet.attr({transform: this.leftJetMatrix});
 
-		this.ventje = this.s.group(this.jetpack,this.ventje);
-		this.ventje.attr({socket: this.socketBallId});
-		this.bodyMatrix.scale(0.4,0.4);
-		this.bodyMatrix.f = 0;
-		this.bodyMatrix.e = (this.boudryWidth / 2) - (this.ventje.getBBox().width);
-		this.ventje.attr({transform: this.bodyMatrix});
+	this.ventje = this.s.group(this.jetpack,this.ventje);
+	this.ventje.attr({socket: this.socketBallId});
+	this.bodyMatrix.scale(0.4,0.4);
+	this.bodyMatrix.f = 0;
+	this.bodyMatrix.e = (this.boudryWidth / 2) - (this.ventje.getBBox().width);
+	this.ventje.attr({transform: this.bodyMatrix});
 		//this.ventje.drag(dragmoving, dragstart, dragstop);
 		window.addEventListener('keydown', function(event) {
-		  switch (event.keyCode) {
+			switch (event.keyCode) {
 		    case 37: // Left
-		    	this.left = true;
+		    this.left = true;
 		    break;
 		    case 38: // up
-		    	this.jumping = true;
+		    this.jumping = true;
+		    console.log(this.soundBoard);
+		    this.player.play(this.soundBoard);
 		    break;
 		    case 32: // space
-		    	if(this.falling){
-		    		console.log("I believe I can fly!!!");
-		    		this.jetpackMode = true;
-					this.flying = true;
-					this.jetpack.selectAll(".fire").attr({opacity: 1});
-					this.jetpackChange = true;
-		    	}
+		    if(this.falling){
+		    	console.log("I believe I can fly!!!");
+		    	this.jetpackMode = true;
+		    	this.flying = true;
+		    	this.jetpack.selectAll(".fire").attr({opacity: 1});
+		    	this.jetpackChange = true;
+		    }
 		    break;
 		    case 39: // Right
-		    	this.right = true;
+		    this.right = true;
 		    break;
 		  }
 		}.bind(this), false);
 		window.addEventListener('keyup', function(event) {
-		  switch (event.keyCode) {
+			switch (event.keyCode) {
 		    case 37: // Left
-		    	this.left = false;
+		    this.left = false;
 		    break;
 		    case 32: // space
-		    	this.jetpackMode = false;
-		    	this.jetpack.selectAll(".fire").attr({opacity: 0});
+		    this.jetpackMode = false;
+		    this.jetpack.selectAll(".fire").attr({opacity: 0});
 		    break;
 		    case 39: // Right
-		    	this.right = false;
+		    this.right = false;
 		    break;
 		  }
 		}.bind(this), false);
@@ -757,59 +911,66 @@ function loaded(data){
 		document.dispatchEvent(this.event);
 	}
 
-Circle.prototype.setControl = function(value){
-	console.log("control changed to " + value);
+	Circle.prototype.setControl = function(value){
+		console.log("control changed to " + value);
 		switch (value) {
 		    case "left": // Left
-		    	console.log("going left");
-		    	this.left = true;
-		    	this.right = false;
+		    console.log("going left");
+		    this.left = true;
+		    this.right = false;
 		    break;
 		    case "right": // right
-		    	console.log("going right");
-		    	this.right = true;
-		    	this.left = false;
+		    console.log("going right");
+		    this.right = true;
+		    this.left = false;
 		    break;
 		    case "":
-		    	console.log("going nowhere");
-		    	this.left = false;
-		    	this.right = false;
+		    console.log("going nowhere");
+		    this.left = false;
+		    this.right = false;
 		    break;
-		}
-};
-Circle.prototype.setGround = function(value){
-	console.log("ground changed to " + value);
-	if(this.ground !== value){
-		this.ground = value;
-		this.boudryWidth = window.innerWidth || document.body.clientWidth;
-	}
-};
+		  }
+		};
+		Circle.prototype.setBoundries = function(value){
+			console.log("ground changed to " + value);
+			if(this.ground !== value){
+				this.ground = value;
+				this.boudryWidth = window.innerWidth || document.body.clientWidth;
+			}
+		};
 
-Circle.prototype.setJumping = function(value){
-	if(this.jumping !== value){
-		this.jumping = true;
-	}
-};
-Circle.prototype.setJet = function(value){
-	if (value){
-		if(this.falling){
-			console.log("I believe I can fly!!!");
-			this.jetpackMode = true;
-			this.flying = true;
-			this.jetpack.selectAll(".fire").attr({opacity: 1});
-			this.jetpackChange = true;
-		}
-	}else{
-		this.jetpackMode = false;
-		this.jetpack.selectAll(".fire").attr({opacity: 0});
-	}
-	
-};
+		Circle.prototype.setJumping = function(value){
+			if(this.jumping !== value){
+				this.jumping = true;
+				console.log(this.soundBoard);
+				// var source = this.context.createBufferSource();
+				// source.buffer = static.sound;
+				// source.start(0);
+				// var gain = this.context.createGain();
+				// gain.gain.value = static.volume;
+				// source.connect(gain);
+			}
+		};
+		Circle.prototype.setJet = function(value){
+			if (value){
+				if(this.falling){
+					console.log("I believe I can fly!!!");
+					this.jetpackMode = true;
+					this.flying = true;
+					this.jetpack.selectAll(".fire").attr({opacity: 1});
+					this.jetpackChange = true;
+				}
+			}else{
+				this.jetpackMode = false;
+				this.jetpack.selectAll(".fire").attr({opacity: 0});
+			}
 
-Circle.prototype.getSocketBallId = function(){
-	return this.socketBallId;
-};
-function jetpackChangeHandler(){
+		};
+
+		Circle.prototype.getSocketBallId = function(){
+			return this.socketBallId;
+		};
+		function jetpackChangeHandler(){
 	//console.log(" matrix " + this.leftJetMatrix);
 	if(this.flying){
 		if (this.rightJetMatrix.e < 0){
@@ -861,7 +1022,7 @@ function step() {
 			}
 		}
 	}
-	
+
 	if(this.flying){
 		this.velocity -= 0.01;
 		this.jumping = false;
@@ -937,7 +1098,8 @@ function step() {
 }
 
 module.exports = Circle;
-},{}],"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/util/requestAnimationFrame.js":[function(require,module,exports){
+
+},{"../data/sounds.json":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/data/sounds.json","../sound/BufferLoader":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/sound/BufferLoader.js","../sound/Player":"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/sound/Player.js"}],"/Users/quintendelahaye/Desktop/Devine/4.RMD/_RMD/projectMajesticCastle/demo/_js/util/requestAnimationFrame.js":[function(require,module,exports){
 module.exports = (function(){
 	return  window.requestAnimationFrame       || // vedor prefixes. requestanimationframe is beste manier om te animeren in javascript
 	        window.webkitRequestAnimationFrame ||

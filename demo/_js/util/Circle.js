@@ -1,9 +1,27 @@
 /* globals Snap:true */
 
+var BufferLoader = require('../sound/BufferLoader');
+var Player = require('../sound/Player');
+var allSounds = require('../data/sounds.json').characters;
+var self;
 function Circle(socketid, character, color, name, ground){
-	console.log("[Circle] socketballId = " + socketid);
+	// console.log("[Circle] socketballId = " + socketid);
 	this.socketBallId = socketid;
 	this.event = new Event('loaded');
+
+	// console.log(this.currentCharacterSounds);
+	self = this;
+
+	this.curentCharacterSoundBoard = allSounds[character];
+	// console.log(this.curentCharacterSoundBoard);
+
+	window.AudioContext = window.AudioContext||window.webkitAudioContext;
+
+	var context = new AudioContext();
+	this.player = new Player(context);
+
+	var loader = new BufferLoader(context, this.curentCharacterSoundBoard, soundsLoaded); // bufferloader vraagt context, setje geluiden en voert dan die functie uit
+	loader.load();
 
 	this.ventje;
 	this.characterColor = color;
@@ -20,7 +38,7 @@ function Circle(socketid, character, color, name, ground){
 	this.jumping = false;
 	this.falling = false;
 	this.flying = false;
-	
+
 	this.who = character;
 	this.speed = 10;
 	this.velocity = 0;
@@ -36,74 +54,80 @@ function Circle(socketid, character, color, name, ground){
 
 	this.changeFace = false;
 	this.faceToNormal = false;
-	
+
 	this.havingControl = true;
 	this.jetpackMode = false;
 	this.jetpackChange = false;
-    
+
 	Snap.load('assets/svg/characters.svg', loaded.bind(this));
 }
 function nameTagMaker(name,left,top){
-        var tagHTML = "<li class='nameTag' name='"+name+"' style='left:"+left+"px; top:"+top+"px;'><p>"+name+"</p></li>";
-        return tagHTML;
+	var tagHTML = "<li class='nameTag' name='"+name+"' style='left:"+left+"px; top:"+top+"px;'><p>"+name+"</p></li>";
+	return tagHTML;
+}
+function soundsLoaded(arr){
+	// console.log(arr);
+	self.soundBoard = arr;
 }
 function loaded(data){
-		this.nameTag = $(nameTagMaker(this.nameTagString, 0, 0));
-        $("#nameTags ul").append(this.nameTag);
-        this.nameTag = $(".nameTag[name='"+this.nameTagString+"']");
-		this.ventje = data.select("#" + this.who);
-		this.ventje.select(".bodyColor").attr({fill:this.characterColor});
+	this.nameTag = $(nameTagMaker(this.nameTagString, 0, 0));
+	$("#nameTags ul").append(this.nameTag);
+	this.nameTag = $(".nameTag[name='"+this.nameTagString+"']");
+	this.ventje = data.select("#" + this.who);
+	this.ventje.select(".bodyColor").attr({fill:this.characterColor});
 
-		this.jetpack = data.select("#jet");
-		this.jetpack.selectAll(".fire").attr({opacity: 0});
-		this.leftJet = this.jetpack.select("#leftJet");
-		this.rightJet = this.jetpack.select("#rightJet");
+	this.jetpack = data.select("#jet");
+	this.jetpack.selectAll(".fire").attr({opacity: 0});
+	this.leftJet = this.jetpack.select("#leftJet");
+	this.rightJet = this.jetpack.select("#rightJet");
 
-		this.rightJetMatrix.translate(-80,0);
-		this.leftJetMatrix.translate(80,0);
-		this.rightJet.attr({transform: this.rightJetMatrix});
-		this.leftJet.attr({transform: this.leftJetMatrix});
+	this.rightJetMatrix.translate(-80,0);
+	this.leftJetMatrix.translate(80,0);
+	this.rightJet.attr({transform: this.rightJetMatrix});
+	this.leftJet.attr({transform: this.leftJetMatrix});
 
-		this.ventje = this.s.group(this.jetpack,this.ventje);
-		this.ventje.attr({socket: this.socketBallId});
-		this.bodyMatrix.scale(0.4,0.4);
-		this.bodyMatrix.f = 0;
-		this.bodyMatrix.e = (this.boudryWidth / 2) - (this.ventje.getBBox().width);
-		this.ventje.attr({transform: this.bodyMatrix});
+	this.ventje = this.s.group(this.jetpack,this.ventje);
+	this.ventje.attr({socket: this.socketBallId});
+	this.bodyMatrix.scale(0.4,0.4);
+	this.bodyMatrix.f = 0;
+	this.bodyMatrix.e = (this.boudryWidth / 2) - (this.ventje.getBBox().width);
+	this.ventje.attr({transform: this.bodyMatrix});
 		//this.ventje.drag(dragmoving, dragstart, dragstop);
 		window.addEventListener('keydown', function(event) {
-		  switch (event.keyCode) {
+			switch (event.keyCode) {
 		    case 37: // Left
-		    	this.left = true;
+		    this.left = true;
 		    break;
 		    case 38: // up
-		    	this.jumping = true;
+		    this.jumping = true;
+		    console.log(this.soundBoard);
+		    this.player.play(this.soundBoard);
 		    break;
 		    case 32: // space
-		    	if(this.falling){
-		    		console.log("I believe I can fly!!!");
-		    		this.jetpackMode = true;
-					this.flying = true;
-					this.jetpack.selectAll(".fire").attr({opacity: 1});
-					this.jetpackChange = true;
-		    	}
+		    if(this.falling){
+		    	console.log("I believe I can fly!!!");
+		    	this.jetpackMode = true;
+		    	this.flying = true;
+		    	this.jetpack.selectAll(".fire").attr({opacity: 1});
+		    	this.jetpackChange = true;
+		    }
 		    break;
 		    case 39: // Right
-		    	this.right = true;
+		    this.right = true;
 		    break;
 		  }
 		}.bind(this), false);
 		window.addEventListener('keyup', function(event) {
-		  switch (event.keyCode) {
+			switch (event.keyCode) {
 		    case 37: // Left
-		    	this.left = false;
+		    this.left = false;
 		    break;
 		    case 32: // space
-		    	this.jetpackMode = false;
-		    	this.jetpack.selectAll(".fire").attr({opacity: 0});
+		    this.jetpackMode = false;
+		    this.jetpack.selectAll(".fire").attr({opacity: 0});
 		    break;
 		    case 39: // Right
-		    	this.right = false;
+		    this.right = false;
 		    break;
 		  }
 		}.bind(this), false);
@@ -113,59 +137,66 @@ function loaded(data){
 		document.dispatchEvent(this.event);
 	}
 
-Circle.prototype.setControl = function(value){
-	console.log("control changed to " + value);
+	Circle.prototype.setControl = function(value){
+		console.log("control changed to " + value);
 		switch (value) {
 		    case "left": // Left
-		    	console.log("going left");
-		    	this.left = true;
-		    	this.right = false;
+		    console.log("going left");
+		    this.left = true;
+		    this.right = false;
 		    break;
 		    case "right": // right
-		    	console.log("going right");
-		    	this.right = true;
-		    	this.left = false;
+		    console.log("going right");
+		    this.right = true;
+		    this.left = false;
 		    break;
 		    case "":
-		    	console.log("going nowhere");
-		    	this.left = false;
-		    	this.right = false;
+		    console.log("going nowhere");
+		    this.left = false;
+		    this.right = false;
 		    break;
-		}
-};
-Circle.prototype.setGround = function(value){
-	console.log("ground changed to " + value);
-	if(this.ground !== value){
-		this.ground = value;
-		this.boudryWidth = window.innerWidth || document.body.clientWidth;
-	}
-};
+		  }
+		};
+		Circle.prototype.setBoundries = function(value){
+			console.log("ground changed to " + value);
+			if(this.ground !== value){
+				this.ground = value;
+				this.boudryWidth = window.innerWidth || document.body.clientWidth;
+			}
+		};
 
-Circle.prototype.setJumping = function(value){
-	if(this.jumping !== value){
-		this.jumping = true;
-	}
-};
-Circle.prototype.setJet = function(value){
-	if (value){
-		if(this.falling){
-			console.log("I believe I can fly!!!");
-			this.jetpackMode = true;
-			this.flying = true;
-			this.jetpack.selectAll(".fire").attr({opacity: 1});
-			this.jetpackChange = true;
-		}
-	}else{
-		this.jetpackMode = false;
-		this.jetpack.selectAll(".fire").attr({opacity: 0});
-	}
-	
-};
+		Circle.prototype.setJumping = function(value){
+			if(this.jumping !== value){
+				this.jumping = true;
+				console.log(this.soundBoard);
+				// var source = this.context.createBufferSource();
+				// source.buffer = static.sound;
+				// source.start(0);
+				// var gain = this.context.createGain();
+				// gain.gain.value = static.volume;
+				// source.connect(gain);
+			}
+		};
+		Circle.prototype.setJet = function(value){
+			if (value){
+				if(this.falling){
+					console.log("I believe I can fly!!!");
+					this.jetpackMode = true;
+					this.flying = true;
+					this.jetpack.selectAll(".fire").attr({opacity: 1});
+					this.jetpackChange = true;
+				}
+			}else{
+				this.jetpackMode = false;
+				this.jetpack.selectAll(".fire").attr({opacity: 0});
+			}
 
-Circle.prototype.getSocketBallId = function(){
-	return this.socketBallId;
-};
-function jetpackChangeHandler(){
+		};
+
+		Circle.prototype.getSocketBallId = function(){
+			return this.socketBallId;
+		};
+		function jetpackChangeHandler(){
 	//console.log(" matrix " + this.leftJetMatrix);
 	if(this.flying){
 		if (this.rightJetMatrix.e < 0){
@@ -217,7 +248,7 @@ function step() {
 			}
 		}
 	}
-	
+
 	if(this.flying){
 		this.velocity -= 0.01;
 		this.jumping = false;
