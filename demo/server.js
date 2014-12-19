@@ -34,12 +34,16 @@ io.on('connection', function(socket){
 			return client.socketid !== socket.id;
 		});
 		io.sockets.emit("connect_disconnect",clients);
-		socket.broadcast.emit("removeBall",socket.id);
+		socket.broadcast.emit("removeCharacter",socket.id);
 	});
 
 	socket.on('button_pressed', function(buttonElement){
 		console.log("pressed: " + buttonElement.pressed + " / id: " + buttonElement.socketid);
 		socket.broadcast.emit('button_pressed', buttonElement);
+	});
+	socket.on('jetpackActivate', function(buttonElement){
+		console.log("pressed: " + buttonElement.pressed + " / id: " + buttonElement.socketid);
+		socket.broadcast.emit('jetpackActivate', buttonElement);
 	});
 	socket.on('shake', function(jumpingSocketid){
 		console.log("pressed: jump / id: " + jumpingSocketid);

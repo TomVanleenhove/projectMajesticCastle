@@ -20,7 +20,7 @@
 	var socket, socketid, clients;
 
 	function init(){
-		socket = io("192.168.1.125:3000");
+		socket = io("192.168.1.5:3000");
 
 		socket.on("socketid",function(data){
 			console.log("data = " + data);
@@ -69,7 +69,7 @@
 			console.log("name: " + name);
 			var circle = new Circle(socketid, character, color, name, ground);
 			document.addEventListener('loaded',function(e){
-				var svg = Snap("#game");
+				var svg = new Snap("#game");
 				svg.append(circle.ventje);
 				circles.push(circle);
 			});
@@ -110,19 +110,42 @@
 				}
 			}
 		});
-		socket.on('removeBall', function(socketBallId){
-			// console.log("trying to removed: " + socketBallId);
+		socket.on('jetpackActivate', function(buttonElement){
 			if (circles !== []) {
 				for (var i = 0; i < circles.length; i++) {
 					var currentCircle = circles[i];
-					if (currentCircle.getAttribute("socketBallId") === socketBallId){
-				    	// console.log("removed: " + socketBallId);
-				    	currentCircle.remove();
-				    	circles.splice(i,1);
-				    }
-				  }
+					if (currentCircle.getSocketBallId() === buttonElement.socketid){
+						var jetting;
+						switch (buttonElement.pressed) {
+							case "jet" :
+							console.log("jet pressed");
+							jetting = true;
+							currentCircle.setJet(jetting);
+							break;
+							case "":
+							jetting = false;
+							currentCircle.setJet(jetting);
+							break;
+						}
+					}
 				}
-			});
+			}
+		});
+		socket.on('removeCharacter', function(socketBallId){
+			console.log("removing: " + socketBallId);
+			if (circles !== []) {
+				circles.forEach(function(circle) {
+    				if (circle.getSocketBallId() === socketBallId){
+				    	console.log("removed: " + socketBallId);
+				    	console.log(circle);
+				    	circles.splice(circles.indexOf(circle),1);
+				    	circle.nameTag.remove();
+				    	circle.ventje.remove();
+				    	circle.remove();
+				    }
+				});
+			}
+		});
 	}
 	function makeBackground(){
 		var widthB = window.innerWidth || document.body.clientWidth;
@@ -135,8 +158,8 @@
 		groundImg.attr({width:widthB,height:imageHeight,x:0,y: heightB - imageHeight});
 		ground = heightB - (((imageHeight/100)*13) + 109);
 		console.log("ground is made and is = " + ground);
-		circles.forEach(function(circle) {
-    		circle.setGround(ground);
+		circles.forEach(function(circle){
+    		circle.setBoundries(ground);
 		});
 	}
 

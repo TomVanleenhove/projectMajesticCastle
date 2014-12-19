@@ -6,10 +6,11 @@ var characterList = require('../data/characters.json').characters;
 var colorList = require('../data/characters.json').colors;
 var Character = require('./Character.js');
 
+
 function Mobile (socket, socketid, svg) {
 
 	this.svg = svg;
-
+	this.controller = false;
 	console.log(svg);
 
 	this.socket = socket;
@@ -29,7 +30,6 @@ function Mobile (socket, socketid, svg) {
 
 	this.currentCharacter = 0;
 	this.currentColor = 0;
-
 
 	this.character = new Character(characterList[this.currentCharacter].name, colorList[this.currentColor].color, this.svg);
 
@@ -184,17 +184,95 @@ function _createInstruction(instructions){
 	mobileInstruction.setAttributeNS(null, 'transform', 'translate(170, 270) scale(0.5,0.5) rotate(180, 50,100)');
 	desktopInstruction.setAttributeNS(null, 'transform', 'translate(45, 250)');
 
-	console.log(this.currentColor);
-
-	window.addEventListener('shake', shakeEventDidOccur.bind(this, this.socket, this.socketid), false);
-
+	window.addEventListener('shake', shakeEventDidOccur.bind(this), false);
 }
 
-function shakeEventDidOccur (socket, socketid) {
-
+function shakeEventDidOccur() {
+	if (!this.controller){
+		_toKeyboard.bind(this)(this.socket, this.socketid);
+		this.controller = true;
+	}else{
+		this.socket.emit('shake', this.socketid);
+	}
+}
+function _toKeyboard(socket,socketid){
 	socket.emit('shakeToDesktop', socketid, characterList[this.currentCharacter].name, colorList[this.currentColor].color, this.name);
-}
+	//document.querySelector('svg').innerHTML = "";
+	$('g').remove();
 
+	this.svg = document.querySelector('svg');
+	this.svg.width = window.innerWidth;
+	this.svg.height = window.innerHeight;
+	var xPos = window.innerWidth / 4;
+	var buttonPos = window.innerHeight / 2;
+	var buttons = [];
+	for (var i = 0; i < 3; i++) {
+		var circle = SVGHelper.createElement('circle');
+			circle.setAttribute('r', 35);
+			if(i === 3){
+				circle.setAttribute('fill', 'red');
+			}else{
+				circle.setAttribute('fill', 'black');
+			}
+			circle.setAttribute('fill', 'black');
+			circle.setAttribute('dislpay', 'block');
+			this.svg.appendChild(circle);
+			buttons.push(circle);
+			resizer(buttons);
+	}
+	$(window).resize(function(){
+		resizer(buttons);
+	}.bind(buttons));
+
+	buttons.forEach(function(button){
+		var buttonElement = {pressed:"",socketid:socketid};
+		button.addEventListener('touchstart', function(e){
+			switch (button) {
+				case buttons[0] :
+				buttonElement.pressed = "left";
+				socket.emit("button_pressed", buttonElement);
+				break;
+				case buttons[2] :
+				buttonElement.pressed = "jet";
+				socket.emit("jetpackActivate", buttonElement);
+				break;
+				case buttons[1] :
+				buttonElement.pressed = "right";
+				socket.emit("button_pressed", buttonElement);
+				break;
+			}
+		});
+
+		button.addEventListener('touchend', function(e){
+			var buttonElement = {pressed:"",socketid:socketid};
+				switch (button) {
+					case buttons[0] :
+					socket.emit("button_pressed", buttonElement);
+					break;
+					case buttons[2] :
+					socket.emit("jetpackActivate", buttonElement);
+					break;
+					case buttons[1] :
+					socket.emit("button_pressed", buttonElement);
+					break;
+				}
+		});
+	});
+
+}
+function resizer(buttons){
+	var xPos = window.innerWidth / 4;
+	var buttonPos = window.innerHeight / 2;
+	var svg = document.querySelector('svg');
+
+	svg.setAttribute('height', window.innerHeight);
+	svg.setAttribute('width', window.innerWidth);
+	buttons.forEach(function(circle) {
+   		circle.setAttribute('cx', xPos);
+		circle.setAttribute('cy', buttonPos);
+		xPos += window.innerWidth / 4;
+	});
+}
 module.exports = Mobile;
 
 // CODE VOOR BUTTONS
