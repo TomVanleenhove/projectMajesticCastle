@@ -15,14 +15,6 @@ io.on('connection', function(socket){
 	console.log(socket.id + 'connected');
 
 	var maxid = 0;
-	if(clients.length > 0){
-		maxid = _.max(clients,function(client){
-			return client.id;
-		}).id;
-	}
-	var client  = new Client(maxid + 1,socket.id);
-	clients.push(client);
-	console.log(client);
 	//io.to(socket.id).emit("socketid",socket.id);
 	socket.emit("socketid",socket.id);
 	io.sockets.emit("connect_disconnect",clients);
@@ -50,7 +42,14 @@ io.on('connection', function(socket){
 		socket.broadcast.emit('shake', jumpingSocketid);
 	});
 	socket.on('shakeToDesktop', function(socketid, character, color, name){
-		socket.broadcast.emit("makeNewBall",socketid, character, color, name);
+		if(clients.length > 0){
+			maxid = _.max(clients,function(client){
+				return client.id;
+			}).id;
+		}
+		var client  = new Client(maxid + 1,socketid,name,character,color);
+		clients.push(client);
+		socket.broadcast.emit("makeNewBall",client);
 		console.log("character = " + character + " and color = " + color + " and name = " + name);
 	});
 });

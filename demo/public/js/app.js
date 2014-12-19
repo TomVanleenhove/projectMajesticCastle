@@ -17,11 +17,12 @@
 	var bg;
 	// var buttons;
 	var circles;
+	var clients;
 
 	var socket, socketid, clients;
 
 	function init(){
-		socket = io("192.168.1.5:3000");
+		socket = io("192.168.1.125:3000");
 
 		socket.on("socketid",function(data){
 			console.log("data = " + data);
@@ -42,8 +43,8 @@
 
 		socket.on("connect_disconnect",function(data){
 			clients = data;
-		//console.log(clients);
-		$(".clients").empty();
+			//console.log(clients);
+			$(".clients").empty();
 		for(var i = 0; i < clients.length; i++){
 			if(clients[i].socketid === socketid){
 				console.log("client = " + clients[i]);
@@ -52,28 +53,29 @@
 		}
 	});
 	}
-
+	function makeNewChar(client){
+		console.log("making new ball with:");
+		console.log("socket: " + client.socketid);
+		console.log("character: " + client.character);
+		console.log("color: " + client.color);
+		console.log("name: " + client.name);
+		var circle = new Circle(client.socketid, client.character, client.color, client.name, ground);
+		document.addEventListener('loaded',function(e){
+			var svg = new Snap("#game");
+			svg.append(circle.ventje);
+			circles.push(circle);
+		});
+	}
 	function _desktop(htmlCode){
 		$('h1').text('Mobile = false / id = '+ socketid);
-		Snap.load('assets/svg/faces.svg', loadedFaces);
 		circles = [];
 		$("body").append($(htmlCode));
 		makeBackground();
 		$(window).resize(function(){
 			makeBackground();
    		});
-		socket.on("makeNewBall",function(socketid, character, color, name){
-			console.log("making new ball with:");
-			console.log("socket: " + socketid);
-			console.log("character: " + character);
-			console.log("color: " + color);
-			console.log("name: " + name);
-			var circle = new Circle(socketid, character, color, name, ground);
-			document.addEventListener('loaded',function(e){
-				var svg = new Snap("#game");
-				svg.append(circle.ventje);
-				circles.push(circle);
-			});
+		socket.on("makeNewBall",function(client){
+			makeNewChar(client);
 		});
 
 		// speed = 10 + Math.round(Math.random() * (50 - 10));
@@ -147,6 +149,11 @@
 				});
 			}
 		});
+		for(var i = 0; i < clients.length; i++){
+			if(clients[i].button){
+				makeNewChar(clients[i])
+			}
+		}
 	}
 	function makeBackground(){
 		var widthB = window.innerWidth || document.body.clientWidth;
@@ -155,6 +162,7 @@
   		var imageHeight = (607 / 1500)*widthB;
         //cloudMaking();
   		var groundImg = s.select("#ground");
+  		cloudMaking();
 		s.attr({width: widthB,height: heightB});
 		groundImg.attr({width:widthB,height:imageHeight,x:0,y: heightB - imageHeight});
 		ground = heightB - (((imageHeight/100)*13) + 109);
@@ -163,25 +171,35 @@
     		circle.setBoundries(ground);
 		});
 	}
-
-	function loadedFaces(data){
-		socket.on("makeNewBall",function(socketid, character, color, name){
-			/*face = data.select("#" + who);
-			line = data.select(".line");
-			line.attr({	strokeMiterLimit: "10",
-    				strokeDasharray: "9 9",
-    				strokeDashOffset: "988.01"});
-			face.append(line);/*
-			face.attr({transform: "translate(10,10) scale(0.3,0.3)"});
-			facesS.append(face);
-			var lenB = line.getTotalLength();
-		  	line.attr({
-		  	  "stroke-dasharray": lenB + " " + lenB,
-		  	  "stroke-dashoffset": lenB
-		  	}).animate({"stroke-dashoffset": 10}, 1000,mina.easeout);
-		  	face.animate({opacity: 0.7}, 1000,mina.easeout);*/
+	function cloudMaking(){
+    	var delay = 0;
+    	Snap("#game").selectAll(".cloud").forEach(function(cloud){
+    		setTimeout(function() {makeCloudMove(cloud);}.bind(cloud), delay);
+    		delay += 2000;
 		});
-	}
+    }
+    function makeCloudMove(cloud){
+    	cloud.attr({width: 100,height: 100});
+    	var cloudMatrix = new Snap.Matrix();
+     		cloudMatrix.scale(0.1);
+     		cloudMatrix.e = Math.floor(Math.random() * (window.innerWidth || document.body.clientWidth)); //x
+     		cloudMatrix.f = (window.innerHeight || document.body.clientHeight)/2;//y
+
+    	cloud.attr({transform:cloudMatrix});
+
+    		cloudMatrix.a = 2;
+    		cloudMatrix.d = 2;
+			cloudMatrix.f = -200;  
+			if(cloudMatrix.e > (window.innerWidth || document.body.clientWidth) / 2) {
+				cloudMatrix.e += 200;
+			} else{
+				cloudMatrix.e -= 200;
+			}
+
+    	cloud.animate({transform:cloudMatrix}, Math.floor(Math.random() * 7000) + 6000,function(){
+    		makeCloudMove(cloud);
+    	}.bind(cloud));
+    }
 	function _mobile (htmlCode) {
 		$('body').append($(htmlCode));
 		$('h1').text('Mobile = true / id = '+ socketid);
@@ -196,7 +214,7 @@
 })();
 
 },{"./data/characters":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/data/characters.json","./mobile/Mobile":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/mobile/Mobile.js","./svg/SVGHelper":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/svg/SVGHelper.js","./util/Circle":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/util/Circle.js","./util/requestAnimationFrame":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/util/requestAnimationFrame.js"}],"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/data/characters.json":[function(require,module,exports){
-module.exports=module.exports={
+module.exports={
 	"characters": [
 		{
 			"name": "dirk",
