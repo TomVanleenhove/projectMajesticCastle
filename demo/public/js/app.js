@@ -17,12 +17,11 @@
 	var bg;
 	// var buttons;
 	var circles;
-	var clients;
 
 	var socket, socketid, clients;
 
 	function init(){
-		socket = io("192.168.1.125:3000");
+		socket = io("192.168.1.148:3000");
 
 		socket.on("socketid",function(data){
 			console.log("data = " + data);
@@ -151,9 +150,9 @@
 		});
 		for(var i = 0; i < clients.length; i++){
 			if(clients[i].button){
-				makeNewChar(clients[i])
+				makeNewChar(clients[i]);
 			}
-		}
+		};
 	}
 	function makeBackground(){
 		var widthB = window.innerWidth || document.body.clientWidth;
@@ -214,7 +213,7 @@
 })();
 
 },{"./data/characters":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/data/characters.json","./mobile/Mobile":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/mobile/Mobile.js","./svg/SVGHelper":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/svg/SVGHelper.js","./util/Circle":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/util/Circle.js","./util/requestAnimationFrame":"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/util/requestAnimationFrame.js"}],"/Users/TomVanleenhove/Desktop/devine/devine3/RMD III/opdrachten/projectMajesticCastle/demo/_js/data/characters.json":[function(require,module,exports){
-module.exports={
+module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports=module.exports={
 	"characters": [
 		{
 			"name": "dirk",
